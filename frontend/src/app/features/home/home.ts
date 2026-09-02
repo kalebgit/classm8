@@ -5,12 +5,16 @@ import { CoursesService } from '../../core/api/courses.service';
 import { Deliverable } from '../../core/models/deliverable.model';
 import { Course } from '../../core/models/course.model';
 import { ModalShell } from '../../shared/components/modal-shell/modal-shell';
+import { DeliverableForm } from '../deliverables/deliverable-form/deliverable-form';
+import { CourseForm } from '../courses/course-form/course-form';
+import { PixelGauge } from '../../shared/components/pixel-gauge/pixel-gauge';
+import { AnalysisPanel } from '../analysis/analysis-panel/analysis-panel';
 
 type Modal = 'course' | 'deliverable' | 'analysis' | null;
 
 @Component({
   selector: 'app-home',
-  imports: [DeliverableCard, ModalShell],
+  imports: [DeliverableCard, ModalShell, DeliverableForm, CourseForm, AnalysisPanel, ModalShell],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

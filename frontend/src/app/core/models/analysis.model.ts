@@ -13,6 +13,5 @@ export interface CourseAnalysis {
   course_name: string;
   current_grade: number;
   evaluated_percentage: number;
-  projected_grade: number | null;
   categories: CategoryAnalysis[];
 }

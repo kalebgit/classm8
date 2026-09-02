@@ -181,7 +181,6 @@ Query params opcionales:
   "course_name": "Cálculo II",
   "current_grade": 68.1,
   "evaluated_percentage": 90,
-  "projected_grade": 75.67,
   "categories": [
     { "category_id": 12, "name": "Prácticas",     "percentage": 20, "average": 88,   "points": 17.6, "graded_count": 2, "total_count": 5 },
     { "category_id": 11, "name": "Proyectos",      "percentage": 30, "average": 75,   "points": 22.5, "graded_count": 1, "total_count": 2 },
@@ -214,8 +213,11 @@ para course_id:
      points  = average * (c.percentage / 100)
      current_grade        += points
      evaluated_percentage += c.percentage
-  projected_grade = current_grade / (evaluated_percentage / 100)   # si evaluated > 0; si no, null
 ```
+
+`current_grade` = **puntos que ya tienes asegurados sobre 100**. No predice nada: solo suma lo
+calificado hasta ahora. `evaluated_percentage` es el techo actual (lo máximo que podría valer
+`current_grade` hoy).
 
 **Ejemplo** (los del JSON de arriba):
 
@@ -228,7 +230,6 @@ para course_id:
 
 - `current_grade = 17.6 + 22.5 + 28.0 = 68.1`
 - `evaluated_percentage = 20 + 30 + 40 = 90`
-- `projected_grade = 68.1 / 0.90 ≈ 75.67` (“si el resto te sale igual que hasta ahora”)
 
 **En la UI:** el círculo pixelado se rellena hasta `current_grade` (escala 0–100) y debajo dice `sobre 90 % evaluado`. Sin gráficas todavía.
 
@@ -476,7 +477,6 @@ export interface CourseAnalysis {
   course_name: string;
   current_grade: number;
   evaluated_percentage: number;
-  projected_grade: number | null;
   categories: CategoryAnalysis[];
 }
 ```
@@ -1071,9 +1071,11 @@ y `DeliverableForm` a los `imports` de `home.ts`.
 
 ---
 
-### Paso 9 — `pixel-gauge` (círculo pixelado)
+### Paso 9 — `pixel-gauge` (círculo tipo tanque)
 
-20 segmentos = 5 puntos cada uno. Se encienden `round(value / 5)`. Markup mínimo gracias al `@for`; SCSS plano.
+Un aro circular **liso** (buena calidad, se ve redondo) y dentro **barras horizontales** que se
+llenan de abajo hacia arriba según la calificación, recortadas al círculo. El aro se renderiza
+suave; las barras con `crispEdges` para el look de rejilla. Un solo `@for` sobre 11 barras.
 
 **`src/app/shared/components/pixel-gauge/pixel-gauge.ts`**
 ```ts
@@ -1089,39 +1091,49 @@ export class PixelGauge {
 
   label = computed(() => Math.round(this.value()));
 
-  segments = computed(() => {
-    const on = Math.round(this.value() / 5);
-    return Array.from({ length: 20 }, (_, i) => ({ i, deg: i * 18, on: i < on }));
+  bars = computed(() => {
+    const total = 11;
+    const filled = (this.value() / 100) * total;
+    return Array.from({ length: total }, (_, i) => ({
+      y: i * 4,                    // 11 barras de 4 de alto → viewBox 44
+      on: total - i <= filled,     // se encienden desde la de abajo
+    }));
   });
 }
 ```
 
 **`src/app/shared/components/pixel-gauge/pixel-gauge.html`**
 ```html
-<svg viewBox="0 0 42 42" class="gauge">
-  @for (s of segments(); track s.i) {
-    <rect
-      [class.on]="s.on"
-      x="20" y="1.5" width="2.6" height="7"
-      [attr.transform]="'rotate(' + s.deg + ' 21 21)'" />
-  }
-  <text x="21" y="24" text-anchor="middle" class="num">{{ label() }}</text>
+<svg viewBox="0 0 44 44" class="gauge">
+  <clipPath id="disc"><circle cx="22" cy="22" r="21" /></clipPath>
+
+  <g clip-path="url(#disc)" shape-rendering="crispEdges">
+    @for (bar of bars(); track bar.y) {
+      <rect class="bar" [class.on]="bar.on" x="0" [attr.y]="bar.y" width="44" height="3" />
+    }
+  </g>
+
+  <circle class="ring" cx="22" cy="22" r="21" />
+  <text x="22" y="27" text-anchor="middle" class="num">{{ label() }}</text>
 </svg>
 ```
 
 **`src/app/shared/components/pixel-gauge/pixel-gauge.scss`**
 ```scss
-.gauge {
-  width: 120px;
-  height: 120px;
-  shape-rendering: crispEdges;
-}
-rect { fill: var(--dim); }
-rect.on { fill: var(--amber); }
+.gauge { width: 120px; height: 120px; }
+
+.ring { fill: none; stroke: var(--amber); stroke-width: 2; }
+
+.bar { fill: none; }
+.bar.on { fill: var(--amber); }
+
 .num {
   fill: var(--amber);
+  stroke: var(--panel);
+  stroke-width: 3;
+  paint-order: stroke;            /* halo oscuro → el número se lee sobre las barras */
   font-family: 'VT323', monospace;
-  font-size: 11px;
+  font-size: 14px;
 }
 ```
 
@@ -1167,7 +1179,7 @@ export class AnalysisPanel {
 
 @if (data(); as d) {
   <app-pixel-gauge [value]="d.current_grade" />
-  <p class="sub">sobre {{ d.evaluated_percentage }}% evaluado · proyección {{ d.projected_grade ?? '—' }}</p>
+  <p class="sub">sobre {{ d.evaluated_percentage }}% evaluado</p>
 
   @for (c of d.categories; track c.category_id) {
     <div class="row">

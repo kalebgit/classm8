@@ -1,0 +1,22 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>Nombre</label>
+  <input formControlName="name" autocomplete="off" />
+
+  <label>Categorías (deben sumar 100)</label>
+  <div formArrayName="categories">
+    @for (c of categories.controls; track $index) {
+      <div class="row" [formGroupName]="$index">
+        <input formControlName="name" placeholder="Examen" autocomplete="off" />
+        <input formControlName="percentage" type="number" min="0" max="100" />
+        <button class="btn" type="button" (click)="removeCategory($index)">×</button>
+      </div>
+    }
+  </div>
+
+  <div class="foot">
+    <button class="btn" type="button" (click)="addCategory()">+ categoría</button>
+    <span [class.bad]="total !== 100">total: {{ total }}</span>
+  </div>
+
+  <button class="btn" type="submit">Guardar</button>
+</form>

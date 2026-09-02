@@ -16,7 +16,6 @@ export interface NewDeliverable {
   name: string;
   due_date: string;
   weight: number;
-  course_id: number;
   category_id: number;
   previous_phase_id: number | null;
 }

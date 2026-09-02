@@ -1,0 +1,28 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>Nombre</label>
+  <input formControlName="name" autocomplete="off" />
+
+  <label>Materia</label>
+  <select formControlName="course_id">
+    <option [ngValue]="0">—</option>
+    @for (c of courses(); track c.id) {
+      <option [ngValue]="c.id">{{ c.name }}</option>
+    }
+  </select>
+
+  <label>Categoría</label>
+  <select formControlName="category_id">
+    <option [ngValue]="0">—</option>
+    @for (c of categories(); track c.id) {
+      <option [ngValue]="c.id">{{ c.name }} ({{ c.percentage }}%)</option>
+    }
+  </select>
+
+  <label>Fecha de entrega</label>
+  <input type="datetime-local" formControlName="due_date" />
+
+  <label>Peso</label>
+  <input type="number" formControlName="weight" min="0" step="1" />
+
+  <button class="btn" type="submit">Guardar</button>
+</form>

@@ -1,0 +1,14 @@
+.row {
+  display: grid;
+  grid-template-columns: 1fr 70px 32px;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  font-size: 12px;
+}
+.bad { color: var(--due); }

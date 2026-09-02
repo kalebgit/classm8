@@ -13,6 +13,18 @@
   </app-modal-shell>
 }
 
+@if (modal() === 'deliverable') {
+  <app-modal-shell title="Nuevo entregable" (close)="modal.set(null)">
+    <app-deliverable-form [courses]="courses()" (saved)="onSaved()" />
+  </app-modal-shell>
+}
+@if (modal() === 'analysis') {
+  <app-modal-shell title="Análisis" (close)="modal.set(null)">
+    <app-analysis-panel [courses]="courses()" />
+  </app-modal-shell>
+}
+
+
 <!--recordamos que para llamar signals se pone en notacion de funcion-->
 @for (d of pending(); track d.id) {
   <app-deliverable-card [deliverable]="d" (submit)="markSubmitted($event)" />
@@ -21,3 +33,4 @@
 @empty {
   <p class="empty">Sin pendientes.</p>
 }
+
