@@ -1,27 +1,19 @@
 import { Component, input, output } from '@angular/core';
-
-export interface DeliverableUI {
-  id: number;
-  name: string;
-  deadline: string;
-  delivered_date: string | null;
-  grade: number | null;
-  category_name: string;
-}
+import { DatePipe } from '@angular/common';
+import { Deliverable } from '../../../core/models/deliverable.model';
 
 @Component({
   selector: 'app-deliverable-card',
-  // imports: [],
+  imports: [DatePipe],
   templateUrl: './deliverable-card.html',
   styleUrl: './deliverable-card.scss',
 })
 export class DeliverableCard {
-  deliverable = input.required<DeliverableUI>();
+  deliverable = input.required<Deliverable>();
+  submit = output<number>();
 
-  deliver = output<number>();
-
-  get outdated(): boolean {
-    return !this.deliverable().delivered_date
-      && new Date(this.deliverable().deadline) < new Date();
+  get overdue(): boolean {
+    const d = this.deliverable();
+    return !d.submitted_at && new Date(d.due_date) < new Date();
   }
 }

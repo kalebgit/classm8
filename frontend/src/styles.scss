@@ -1,1 +1,58 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --bg:    #0d0902;
+  --panel: #160f05;
+  --line:  #4a3308;
+  --amber: #ffb000;
+  --dim:   #8a5f10;
+  --due:   #ff6b47;
+  --ok:    #5fbf6a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--amber);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* barra sólida ámbar (títulos de sección / cabeceras de modal / ticket) */
+.head {
+  background: var(--amber);
+  color: var(--panel);
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+}
+
+/* botón terminal reutilizable */
+.btn {
+  background: #3a2708;
+  border: 1px solid var(--line);
+  color: var(--amber);
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.btn:hover { background: #4a3308; text-shadow: 0 0 5px rgba(255, 176, 0, .6); }
+
+/* primitivas de formulario (todo el sistema es terminal) */
+label {
+  display: block;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  margin: 8px 0 2px;
+}
+input, select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--amber);
+  font-family: 'Share Tech Mono', monospace;
+  padding: 5px 8px;
+}
