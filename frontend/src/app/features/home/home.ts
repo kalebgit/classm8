@@ -1,20 +1,48 @@
-import { Component, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { DeliverableCard } from '../../shared/components/deliverable-card/deliverable-card';
-import { Deliverable } from '../deliverables/deliverable';
+import { DeliverablesService } from '../../core/api/deliverables.service';
+import { CoursesService } from '../../core/api/courses.service';
+import { Deliverable } from '../../core/models/deliverable.model';
+import { Course } from '../../core/models/course.model';
+import { ModalShell } from '../../shared/components/modal-shell/modal-shell';
+
+type Modal = 'course' | 'deliverable' | 'analysis' | null;
 
 @Component({
   selector: 'app-home',
-  // imports: [],
-  imports: [DeliverableCard],
+  imports: [DeliverableCard, ModalShell],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home {
+  private deliverablesApi = inject(DeliverablesService);
+  private coursesApi = inject(CoursesService);
 
-  analyze(){
+  pending = signal<Deliverable[]>([]);
+  courses = signal<Course[]>([]);
+  modal = signal<Modal>(null);
 
+  ngOnInit(): void{
+    this.reload()
+    this.coursesApi.list().subscribe( (c) => this.courses.set(c))
+
+  }
+
+  reload(): void {
+    this.deliverablesApi.list({ status: 'pending' }).subscribe((list) =>
+      this.pending.set([...list].sort((a, b) => a.due_date.localeCompare(b.due_date))),
+    );
+  }
+
+  markSubmitted(id: number): void {
+    this.deliverablesApi
+      .update(id, { submitted_at: new Date().toISOString() })
+      .subscribe(() => this.reload());
+  }
+
+  onSaved(): void {
+    this.modal.set(null);
+    this.reload();
   }
 }
 

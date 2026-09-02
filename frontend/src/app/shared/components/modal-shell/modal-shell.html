@@ -1,0 +1,11 @@
+<div class="overlay" (click)="close.emit()"></div>
+<div class="panel">
+  <div class="head">
+    {{ title() }}
+    <button class="x" (click)="close.emit()">×</button>
+  </div>
+  <div class="content">
+    <!--esto es por si usas modal shell como etiqueta padre-->
+    <ng-content /> 
+  </div>
+</div>

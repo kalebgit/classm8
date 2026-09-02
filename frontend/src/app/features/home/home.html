@@ -1,2 +1,23 @@
-<p>Pendientes</p>
-<button (click)="analyze()">Analizar</button>
+<section class="actions">
+  <button class="btn" (click)="modal.set('course')">+ Materia</button>
+  <button class="btn" (click)="modal.set('deliverable')">+ Entregable</button>
+  <button class="btn spacer" (click)="modal.set('analysis')">Analizar</button>
+</section>
+
+<div class="head">PENDIENTES — {{ pending().length }}</div>
+
+@if (modal() === 'course') {
+    <!--TODO: que pasaria si no estuviese el title que en codigo dice required?-->
+  <app-modal-shell title="Nueva materia" (close)="modal.set(null)">
+    <app-course-form (saved)="onSaved()" />
+  </app-modal-shell>
+}
+
+<!--recordamos que para llamar signals se pone en notacion de funcion-->
+@for (d of pending(); track d.id) {
+  <app-deliverable-card [deliverable]="d" (submit)="markSubmitted($event)" />
+} 
+<!--esta notacion es cuando no hay nada en el for-->
+@empty {
+  <p class="empty">Sin pendientes.</p>
+}

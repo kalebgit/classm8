@@ -1,0 +1,13 @@
+.actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+}
+.actions .spacer { margin-left: auto; }
+
+.empty { padding: 12px; color: var(--dim); }
+
+app-deliverable-card {
+  display: block;
+  margin: 8px 10px;
+}
