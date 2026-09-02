@@ -1,0 +1,21 @@
+<div class="ticket">
+
+  <div class="head">{{ deliverable().category_name }}</div>
+
+  <div class="body">
+    <div class="name">{{ deliverable().name }}</div>
+
+    <div class="foot">
+      <span class="due">Entrega: {{ deliverable().deadline | date: 'short' }}</span>
+
+      @if (deliverable().grade !== null) {
+        <span class="badge grade">Calif: {{ deliverable().grade }}</span>
+      } @else if (deliverable().delivered_date) {
+        <span class="badge delivered">Entregado, sin calificar</span>
+      } @else {
+        <button class="btn" (click)="deliver.emit(deliverable().id)">Marcar entregado</button>
+      }
+    </div>
+  </div>
+
+</div>
