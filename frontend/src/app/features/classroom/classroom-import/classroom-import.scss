@@ -1,0 +1,52 @@
+.msg { margin: 8px 0 12px; }
+.msg.bad { color: var(--due); }
+
+.course {
+  border: 1px solid var(--line);
+  margin-bottom: 12px;
+  padding: 8px;
+}
+.course-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.course-head .cname {
+  flex: 1;
+  min-width: 0;
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 6px 0;
+  border-top: 1px dashed var(--line);
+}
+.row.dim { opacity: 0.5; }
+.row .fields { flex: 1; min-width: 0; }
+.row .rname { width: 100%; }
+.row .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--dim);
+}
+.row .cat { font-size: 12px; }
+.row .cat.bad { border-color: var(--due); }
+.row .tag { color: var(--dim); }
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 13px;
+}

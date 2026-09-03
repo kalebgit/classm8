@@ -3,6 +3,7 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 10px;
+  align-items: center;
 }
 .actions .spacer { margin-left: auto; }
 .actions .user {
@@ -11,6 +12,21 @@
   font-size: 13px;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+.actions .avatar {
+  border: 1px solid var(--line);
+  image-rendering: pixelated;
+  display: block;
+}
+
+.notice {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--amber);
+  font-size: 13px;
+  margin: 0 10px 8px;
+  padding: 6px 10px;
+  cursor: pointer;
 }
 
 .empty { padding: 12px; color: var(--dim); }

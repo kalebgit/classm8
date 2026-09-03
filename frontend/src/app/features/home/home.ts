@@ -7,33 +7,52 @@ import { Course } from '../../core/models/course.model';
 import { ModalShell } from '../../shared/components/modal-shell/modal-shell';
 import { DeliverableForm } from '../deliverables/deliverable-form/deliverable-form';
 import { CourseForm } from '../courses/course-form/course-form';
-import { PixelGauge } from '../../shared/components/pixel-gauge/pixel-gauge';
 import { AnalysisPanel } from '../analysis/analysis-panel/analysis-panel';
+import { ClassroomImport } from '../classroom/classroom-import/classroom-import';
 import { AuthService } from '../../core/api/auth.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
-type Modal = 'course' | 'deliverable' | 'analysis' | null;
+type Modal = 'course' | 'deliverable' | 'analysis' | 'classroom' | null;
 
 @Component({
   selector: 'app-home',
-  imports: [DeliverableCard, ModalShell, DeliverableForm, CourseForm, AnalysisPanel, ModalShell],
+  imports: [DeliverableCard, ModalShell, DeliverableForm, CourseForm, AnalysisPanel, ClassroomImport],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home {
+export class Home implements OnInit {
   private deliverablesApi = inject(DeliverablesService);
   private coursesApi = inject(CoursesService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   auth = inject(AuthService);
 
   pending = signal<Deliverable[]>([]);
   courses = signal<Course[]>([]);
   modal = signal<Modal>(null);
+  /** aviso corto tras volver de conectar Classroom */
+  notice = signal<string | null>(null);
 
-  ngOnInit(): void{
-    this.reload()
-    this.coursesApi.list().subscribe( (c) => this.courses.set(c))
+  ngOnInit(): void {
+    this.reload();
+    this.loadCourses();
 
+    // Volvimos del consentimiento de Classroom (?classroom=connected|error).
+    const flag = this.route.snapshot.queryParamMap.get('classroom');
+    if (flag === 'connected') {
+      this.notice.set('Classroom conectado. Abre "Classroom" para importar.');
+      this.auth.refresh();
+      this.modal.set('classroom');
+    } else if (flag === 'error') {
+      this.notice.set('No se pudo conectar Classroom.');
+    }
+    if (flag) {
+      this.router.navigate([], { queryParams: {}, replaceUrl: true });
+    }
+  }
+
+  private loadCourses(): void {
+    this.coursesApi.list().subscribe((c) => this.courses.set(c));
   }
 
   reload(): void {
@@ -50,6 +69,13 @@ export class Home {
 
   onSaved(): void {
     this.modal.set(null);
+    this.reload();
+  }
+
+  onImported(): void {
+    this.modal.set(null);
+    this.notice.set('Importación completa.');
+    this.loadCourses();
     this.reload();
   }
 

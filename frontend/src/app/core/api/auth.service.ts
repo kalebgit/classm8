@@ -8,6 +8,7 @@ export interface CurrentUser {
   email: string;
   name: string | null;
   picture: string | null;
+  classroom_connected: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,9 @@ export class AuthService {
   readonly user = signal<CurrentUser | null>(null);
   /** true una vez que se resolvió `refresh()` al menos una vez. */
   readonly loaded = signal(false);
+
+  /** URL del avatar del usuario ya pasado por el filtro CRT del backend. */
+  readonly avatarUrl = `${this.base}/me/avatar`;
 
   /**
    * Manda el navegador entero al backend, que arranca el flujo OAuth con Google.

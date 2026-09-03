@@ -1,0 +1,86 @@
+@switch (state()) {
+  @case ('loading') {
+    <p class="msg">Leyendo Classroom…</p>
+  }
+
+  @case ('disconnected') {
+    <p class="msg">
+      classm8 necesita permiso para leer tus cursos y tareas de Google Classroom
+      (solo lectura).
+    </p>
+    <button class="btn" type="button" (click)="connect()">Conectar Classroom</button>
+  }
+
+  @case ('importing') {
+    <p class="msg">Importando…</p>
+  }
+
+  @case ('error') {
+    <p class="msg bad">{{ errorMsg() }}</p>
+    <button class="btn" type="button" (click)="connect()">Reintentar conexión</button>
+  }
+
+  @case ('ready') {
+    @if (maps().length === 0) {
+      <p class="msg">No hay cursos con tareas fechadas en tu Classroom.</p>
+    } @else {
+      @for (m of maps(); track m.classroomId) {
+        <div class="course">
+          <div class="course-head">
+            <span class="cname">{{ m.classroomName }}</span>
+            <select [(ngModel)]="m.targetCourseId" (ngModelChange)="onTargetChange(m)">
+              <option [ngValue]="0">+ crear materia nueva</option>
+              @for (c of courses(); track c.id) {
+                <option [ngValue]="c.id">→ {{ c.name }}</option>
+              }
+            </select>
+          </div>
+
+          @for (r of m.rows; track r.classroomId) {
+            <div class="row" [class.dim]="r.alreadyImported">
+              <input
+                type="checkbox"
+                [(ngModel)]="r.selected"
+                [disabled]="r.alreadyImported"
+              />
+              <div class="fields">
+                <input
+                  class="rname"
+                  [(ngModel)]="r.name"
+                  [disabled]="r.alreadyImported || !r.selected"
+                  autocomplete="off"
+                />
+                <div class="meta">
+                  <span class="due">entrega: {{ r.dueDate | date: 'dd/MM/yy HH:mm' }}</span>
+                  @if (r.alreadyImported) {
+                    <span class="tag">ya importado</span>
+                  } @else if (m.targetCourseId > 0 && r.selected) {
+                    <select
+                      class="cat"
+                      [(ngModel)]="r.categoryId"
+                      [class.bad]="needsCategory(m, r)"
+                    >
+                      <option [ngValue]="0">categoría…</option>
+                      @for (cat of categoriesFor(m.targetCourseId); track cat.id) {
+                        <option [ngValue]="cat.id">{{ cat.name }} ({{ cat.percentage }}%)</option>
+                      }
+                    </select>
+                  } @else if (r.selected) {
+                    <span class="tag">materia nueva → categoría "General"</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="foot">
+        <span>{{ selectedCount() }} seleccionados</span>
+        <button class="btn" type="button" [disabled]="!canImport()" (click)="submit()">
+          Importar
+        </button>
+      </div>
+    }
+  }
+}
