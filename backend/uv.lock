@@ -67,6 +67,7 @@ dependencies = [
     { name = "alembic" },
     { name = "authlib" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "itsdangerous" },
     { name = "psycopg", extra = ["binary", "pool"] },
     { name = "pydantic" },
@@ -79,7 +80,6 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "httpx" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -89,6 +89,7 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.19.1" },
     { name = "authlib", specifier = ">=1.3.2" },
     { name = "fastapi", specifier = ">=0.141.1" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "itsdangerous", specifier = ">=2.2.0" },
     { name = "psycopg", extras = ["binary", "pool"], specifier = ">=3.3.4" },
     { name = "pydantic", specifier = ">=2.13.5" },
@@ -101,7 +102,6 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "httpx", specifier = ">=0.28.1" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "ruff", specifier = ">=0.16.5" },
 ]

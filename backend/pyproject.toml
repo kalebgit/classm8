@@ -14,13 +14,13 @@ dependencies = [
     "sqlalchemy>=2.0.52",
     "uvicorn[standard]>=0.52.4",
     "authlib>=1.3.2",          # cliente OAuth, valida el id_token de Google
+    "httpx>=0.28.1",          # transporte HTTP que usa authlib para hablar con Google
     "pyjwt>=2.9.0",            # emitir/verificar el JWT propio
     "itsdangerous>=2.2.0",    # requerido por SessionMiddleware de Starlette
 ]
 
 [dependency-groups]
 dev = [
-    "httpx>=0.28.1",
     "pytest>=9.1.1",
     "ruff>=0.16.5",
 ]
