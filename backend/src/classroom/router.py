@@ -81,8 +81,25 @@ async def callback(request: Request, db: dbSession):
     user = auth_service.get_user(db, uid) if uid else None
     if user is None:
         return _fail(f"usuario no recuperado de la sesión (uid={uid!r})")
+
     if not refresh_token:
-        return _fail(f"sin refresh_token (keys={list(token)})")
+        # Google no reemite refresh_token si ya hay una concesión vigente para
+        # esta app. Si el usuario ya tenía uno guardado, seguimos con ese.
+        if user.classroom_refresh_token:
+            logger.info(
+                "callback sin refresh_token nuevo; se conserva el guardado "
+                "(user_id=%s)",
+                user.id,
+            )
+            return RedirectResponse(
+                f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=connected"
+            )
+        # No hay ninguno: el usuario debe revocar el acceso en
+        # myaccount.google.com/permissions y reconectar para que Google lo emita.
+        return _fail(
+            "sin refresh_token y no hay uno guardado; revoca el acceso en "
+            "myaccount.google.com/permissions y reconecta"
+        )
 
     service.save_refresh_token(db, user, refresh_token)
     logger.info("classroom conectado para user_id=%s", user.id)
