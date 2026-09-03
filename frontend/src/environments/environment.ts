@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.midominio.com/api/v1',
+  // Mismo origen: el navegador resuelve /api/v1 contra el dominio actual.
+  apiUrl: '/api/v1',
 };

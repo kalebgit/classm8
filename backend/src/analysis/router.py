@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from src.analysis import schemas, service
+from src.auth.dependencies import CurrentUser
 from src.dependencies import dbSession
 
 # GET /courses/{course_id}/analysis
@@ -14,10 +15,10 @@ router = APIRouter(prefix="/analysis", tags=["analysis"])
 
 
 @course_analysis_router.get("", response_model=schemas.CourseAnalysisOut)
-def course_analysis(course_id: int, db: dbSession):
-    return service.analyze_course(db, course_id)
+def course_analysis(course_id: int, db: dbSession, current_user: CurrentUser):
+    return service.analyze_course(db, course_id, current_user.id)
 
 
 @router.get("", response_model=list[schemas.CourseAnalysisOut])
-def all_analysis(db: dbSession):
-    return service.analyze_all(db)
+def all_analysis(db: dbSession, current_user: CurrentUser):
+    return service.analyze_all(db, current_user.id)

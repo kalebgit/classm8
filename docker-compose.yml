@@ -1,0 +1,70 @@
+# Stack de producción para el VPS.
+# Uso:
+#   1. crea un archivo .env junto a este (ver .env.deploy.example)
+#   2. edita el Caddyfile con tu dominio
+#   3. docker compose up -d --build
+#
+# Todo vive en la red interna de compose; solo Caddy expone puertos (80/443).
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: https://${DOMAIN}/api/v1/auth/google/callback
+      FRONTEND_LOGIN_SUCCESS_URL: https://${DOMAIN}/
+      FRONTEND_LOGIN_FAILURE_URL: https://${DOMAIN}/login?error=oauth
+      JWT_SECRET: ${JWT_SECRET}
+      COOKIE_SECURE: "true"
+      # Mismo origen -> no hace falta CORS ni dominio de cookie explícito.
+      CORS_ORIGINS: '["https://${DOMAIN}"]'
+    expose:
+      - "8000"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    expose:
+      - "4000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

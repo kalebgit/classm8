@@ -72,13 +72,13 @@ def _analyze_course(db: Session, course: Course) -> dict:
     }
 
 
-def analyze_course(db: Session, course_id: int) -> dict:
+def analyze_course(db: Session, course_id: int, user_id: int) -> dict:
     course = db.get(Course, course_id)
-    if course is None:
+    if course is None or course.user_id != user_id:
         raise NotFoundError(f"Materia con id {course_id} no encontrada")
     return _analyze_course(db, course)
 
 
-def analyze_all(db: Session) -> list[dict]:
-    courses = list(db.scalars(select(Course)).all())
-    return [_analyze_course(db, c) for c in courses]
+def analyze_all(db: Session, user_id: int) -> list[dict]:
+    stmt = select(Course).where(Course.user_id == user_id)
+    return [_analyze_course(db, c) for c in db.scalars(stmt).all()]

@@ -39,6 +39,11 @@ class Deliverable(Base):
     previous_phase_id: Mapped[int | None] = mapped_column(
         ForeignKey("deliverables.id", ondelete="SET NULL"), nullable=True
     )
+    # Dueño. Denormalizado desde course.user_id para filtrar GET /deliverables
+    # sin JOIN a courses.
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     # se debe poner el nombre del atributo en la clase de python del otro lado
     course: Mapped[Course] = relationship(back_populates="deliverables")

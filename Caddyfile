@@ -1,0 +1,17 @@
+# Reemplaza TU_DOMINIO.com por tu dominio real.
+# Caddy saca y renueva los certificados TLS de Let's Encrypt automáticamente.
+#
+# Un solo dominio, mismo origen para front y API:
+#   TU_DOMINIO.com          -> frontend (SSR, Node en :4000)
+#   TU_DOMINIO.com/api/*     -> backend (FastAPI en :8000)
+
+TU_DOMINIO.com {
+	# Las llamadas al API van al backend, todo lo demás al frontend.
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	handle {
+		reverse_proxy frontend:4000
+	}
+}
