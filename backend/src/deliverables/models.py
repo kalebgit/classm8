@@ -29,6 +29,12 @@ class Deliverable(Base):
     # Calificación obtenida: 0 - 100 (entero). Null mientras no se califica.
     grade: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    # id del coursework de Google Classroom del que se importó este entregable.
+    # Null si se creó a mano. Sirve para no re-importar lo mismo dos veces.
+    classroom_coursework_id: Mapped[str | None] = mapped_column(
+        String, nullable=True, index=True
+    )
+
     course_id: Mapped[int] = mapped_column(
         ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True
     )

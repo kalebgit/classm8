@@ -33,9 +33,12 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_REDIRECT_URI: https://${DOMAIN}/api/v1/auth/google/callback
+      GOOGLE_CLASSROOM_REDIRECT_URI: https://${DOMAIN}/api/v1/classroom/callback
       FRONTEND_LOGIN_SUCCESS_URL: https://${DOMAIN}/
       FRONTEND_LOGIN_FAILURE_URL: https://${DOMAIN}/login?error=oauth
+      FRONTEND_CLASSROOM_RETURN_URL: https://${DOMAIN}/
       JWT_SECRET: ${JWT_SECRET}
+      FERNET_KEY: ${FERNET_KEY}
       COOKIE_SECURE: "true"
       # Mismo origen -> no hace falta CORS ni dominio de cookie explícito.
       CORS_ORIGINS: '["https://${DOMAIN}"]'

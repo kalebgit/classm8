@@ -17,6 +17,11 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, unique=True, index=True)
     name: Mapped[str | None] = mapped_column(String, nullable=True)
     picture: Mapped[str | None] = mapped_column(String, nullable=True)
+    # refresh_token de Google (CIFRADO con Fernet) para leer Classroom sin pedir
+    # consentimiento en cada escaneo. Null mientras el usuario no conecte Classroom.
+    classroom_refresh_token: Mapped[str | None] = mapped_column(
+        String, nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

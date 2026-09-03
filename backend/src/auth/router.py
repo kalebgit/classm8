@@ -1,8 +1,9 @@
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 
 from src.auth import service
+from src.auth.avatar import render_avatar_png
 from src.auth.dependencies import CurrentUser
 from src.auth.schemas import UserOut
 from src.auth.security import create_session_token
@@ -67,6 +68,18 @@ async def google_callback(request: Request, db: dbSession):
 def me(current_user: CurrentUser):
     """El front llama a esto al arrancar para saber si hay sesión y de quién."""
     return current_user
+
+
+@router.get("/me/avatar")
+def me_avatar(current_user: CurrentUser):
+    """Foto de Google del usuario pasada por el filtro CRT/duotono de classm8.
+    Se sirve como PNG y el navegador la cachea un día."""
+    png = render_avatar_png(current_user.picture)
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={"Cache-Control": "private, max-age=86400"},
+    )
 
 
 @router.post("/logout")

@@ -17,6 +17,11 @@ dependencies = [
     "httpx>=0.28.1",          # transporte HTTP que usa authlib para hablar con Google
     "pyjwt>=2.9.0",            # emitir/verificar el JWT propio
     "itsdangerous>=2.2.0",    # requerido por SessionMiddleware de Starlette
+    "google-api-python-client>=2.150.0",   # cliente oficial de Google Classroom
+    "google-auth>=2.36.0",                 # credenciales OAuth2 + refresco de token
+    "cryptography>=44.0.0",                # cifra el refresh_token de Google en la DB
+    "pillow>=11.0.0",                      # efecto duotono sobre el avatar de Google
+    "numpy>=2.1.0",                        # operaciones vectorizadas del filtro CRT
 ]
 
 [dependency-groups]

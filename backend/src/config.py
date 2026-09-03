@@ -16,6 +16,19 @@ class Settings(BaseSettings):
     FRONTEND_LOGIN_SUCCESS_URL: str = "http://localhost:4000/"
     FRONTEND_LOGIN_FAILURE_URL: str = "http://localhost:4000/login?error=oauth"
 
+    # --- Google Classroom (autorización incremental, aparte del login) ---
+    # Callback del consentimiento extra para leer Classroom. Debe estar
+    # registrado en Google Cloud igual que GOOGLE_REDIRECT_URI.
+    GOOGLE_CLASSROOM_REDIRECT_URI: str = (
+        "http://localhost:8000/api/v1/classroom/callback"
+    )
+    # A dónde vuelve el front cuando el usuario termina de conectar Classroom.
+    FRONTEND_CLASSROOM_RETURN_URL: str = "http://localhost:4000/"
+    # Clave Fernet (urlsafe base64, 32 bytes) para cifrar el refresh_token de
+    # Google en la DB. Genera una: python -c "from cryptography.fernet import
+    # Fernet; print(Fernet.generate_key().decode())"
+    FERNET_KEY: str
+
     # Firma del JWT propio. GENERA UNO LARGO Y ALEATORIO (ver §6).
     JWT_SECRET: str
     JWT_ALG: str = "HS256"
@@ -31,7 +44,7 @@ class Settings(BaseSettings):
     # CORS: orígenes del front permitidos
     CORS_ORIGINS: list[str] = ["http://localhost:4000"]
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 settings = Settings()

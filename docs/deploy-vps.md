@@ -106,7 +106,11 @@ POSTGRES_DB=classm8
 GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=xxxx
 JWT_SECRET=<genera: openssl rand -base64 48>
+FERNET_KEY=<genera: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())">
 ```
+
+> `FERNET_KEY` cifra el `refresh_token` de Google Classroom en la base de datos.
+> Si lo cambias, los usuarios tendrán que volver a conectar Classroom.
 
 ### 4.2 El `Caddyfile`
 
@@ -127,17 +131,27 @@ classm8.tudominio.com {
 }
 ```
 
-### 4.3 Google Cloud: registrar la URL de producción
+### 4.3 Google Cloud: registrar las URLs de producción
 
 En [Google Cloud Console](https://console.cloud.google.com) → APIs y servicios →
-Credenciales → tu cliente OAuth → **URIs de redireccionamiento autorizados**, añade:
+Credenciales → tu cliente OAuth → **URIs de redireccionamiento autorizados**,
+añade LAS DOS:
 
 ```
 https://classm8.tudominio.com/api/v1/auth/google/callback
+https://classm8.tudominio.com/api/v1/classroom/callback
 ```
 
-Y en la pantalla de consentimiento → **Público**, agrega tu correo de Gmail como
-usuario de prueba (si la app sigue en modo "Testing").
+La segunda es para la importación desde Google Classroom (autorización aparte
+del login).
+
+En **APIs y servicios → Biblioteca**, busca y **habilita "Google Classroom API"**
+en el proyecto (si no, el escaneo da 502).
+
+En la pantalla de consentimiento → **Público**, agrega tu correo de Gmail como
+usuario de prueba (si la app sigue en modo "Testing"). Los scopes de Classroom
+(`classroom.courses.readonly`, `classroom.coursework.me.readonly`) son de solo
+lectura y no requieren verificación para usuarios de prueba.
 
 ---
 
