@@ -1,9 +1,11 @@
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
-from src import models  # noqa: F401  (registra todos los modelos en Base.metadata)
+from src import models  # noqa: F401  (registra los modelos en Base.metadata)
 from src.analysis.router import course_analysis_router
 from src.analysis.router import router as analysis_router
 from src.auth.exceptions import AuthError
@@ -19,6 +21,9 @@ from src.config import settings
 from src.courses.router import router as courses_router
 from src.deliverables.router import router as deliverables_router
 from src.exceptions import ConflictError, NotFoundError
+
+# Que los logs de la app (classm8.*) salgan al stdout del contenedor a nivel INFO.
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title=settings.PROJECT_NAME)
 

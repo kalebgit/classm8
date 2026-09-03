@@ -7,15 +7,20 @@
 - DELETE /classroom/connection -> olvida el refresh_token
 """
 
+import logging
+
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 
+from src.auth import service as auth_service
 from src.auth.dependencies import CurrentUser
 from src.classroom import schemas, service
 from src.classroom.constants import CLASSROOM_SCOPES
 from src.config import settings
 from src.dependencies import dbSession
+
+logger = logging.getLogger("classm8.classroom")
 
 router = APIRouter(prefix="/classroom", tags=["classroom"])
 
@@ -46,26 +51,41 @@ async def connect(request: Request, current_user: CurrentUser):
     )
 
 
+def _fail(reason: str) -> RedirectResponse:
+    # Deja rastro de POR QUÉ falló el connect; el front solo ve ?classroom=error.
+    logger.warning("classroom connect falló: %s", reason)
+    return RedirectResponse(
+        f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=error"
+    )
+
+
 @router.get("/callback")
 async def callback(request: Request, db: dbSession):
     uid = request.session.pop("classroom_connect_uid", None)
+
+    if err := request.query_params.get("error"):
+        return _fail(f"google devolvió ?error={err!r}")
+
     try:
         token = await oauth.google_classroom.authorize_access_token(request)
-    except Exception:  # noqa: BLE001 - state inválido, code caducado, etc.
-        return RedirectResponse(
-            f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=error"
-        )
+    except Exception as exc:  # noqa: BLE001 - state inválido, code caducado, etc.
+        return _fail(f"authorize_access_token: {type(exc).__name__}: {exc}")
+
+    logger.info(
+        "callback token: scopes=%r refresh_token=%s",
+        token.get("scope"),
+        "sí" if token.get("refresh_token") else "NO",
+    )
 
     refresh_token = token.get("refresh_token")
-    from src.auth import service as auth_service
-
     user = auth_service.get_user(db, uid) if uid else None
-    if user is None or not refresh_token:
-        return RedirectResponse(
-            f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=error"
-        )
+    if user is None:
+        return _fail(f"usuario no recuperado de la sesión (uid={uid!r})")
+    if not refresh_token:
+        return _fail(f"sin refresh_token (keys={list(token)})")
 
     service.save_refresh_token(db, user, refresh_token)
+    logger.info("classroom conectado para user_id=%s", user.id)
     return RedirectResponse(
         f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=connected"
     )

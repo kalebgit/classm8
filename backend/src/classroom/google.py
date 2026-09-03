@@ -7,6 +7,7 @@ access_token lo hace la librería sola.
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 
 from google.auth.transport.requests import Request as GoogleRequest
@@ -27,6 +28,8 @@ from src.classroom.exceptions import (
     ClassroomNotConnectedError,
 )
 from src.config import settings
+
+logger = logging.getLogger("classm8.classroom")
 
 
 def _credentials(user: User) -> Credentials:
@@ -85,6 +88,11 @@ def fetch_courses_with_coursework(user: User) -> list[dict]:
             .execute()
             .get("courses", [])
         )
+        logger.info(
+            "classroom scan: %d cursos activos para user_id=%s",
+            len(courses),
+            user.id,
+        )
         result: list[dict] = []
         for course in courses:
             work = (
@@ -119,6 +127,11 @@ def fetch_courses_with_coursework(user: User) -> list[dict]:
                 )
         return result
     except HttpError as exc:
+        logger.warning(
+            "classroom API error: status=%s detail=%s",
+            exc.status_code,
+            getattr(exc, "reason", exc),
+        )
         raise ClassroomAPIError(
             f"Google Classroom respondió {exc.status_code}"
         ) from exc
