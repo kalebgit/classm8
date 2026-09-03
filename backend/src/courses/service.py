@@ -1,9 +1,13 @@
+import logging
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.categories.models import Category
 from src.courses import models, schemas
 from src.exceptions import NotFoundError
+
+logger = logging.getLogger("classm8.courses")
 
 
 def get_courses(db: Session, user_id: int) -> list[models.Course]:
@@ -40,10 +44,19 @@ def update_course(
     db: Session, id: int, course_in: schemas.CourseUpdate, user_id: int
 ) -> models.Course:
     course = get_course(db, id, user_id)
-    for field, value in course_in.model_dump(exclude_unset=True).items():
+    changes = course_in.model_dump(exclude_unset=True)
+    logger.info(
+        "PATCH course %s (user %s): %s -> %s",
+        id,
+        user_id,
+        course.name,
+        changes,
+    )
+    for field, value in changes.items():
         setattr(course, field, value)
     db.commit()
     db.refresh(course)
+    logger.info("course %s ahora se llama %r", id, course.name)
     return course
 
 

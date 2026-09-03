@@ -1,9 +1,13 @@
+import logging
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.categories import models, schemas
 from src.courses.models import Course
 from src.exceptions import NotFoundError
+
+logger = logging.getLogger("classm8.categories")
 
 
 def _get_course_or_404(db: Session, course_id: int, user_id: int) -> Course:
@@ -41,6 +45,13 @@ def create_category(
     db.add(category)
     db.commit()
     db.refresh(category)
+    logger.info(
+        "POST category id=%s name=%r course_id=%s user=%s",
+        category.id,
+        category.name,
+        course_id,
+        user_id,
+    )
     return category
 
 
@@ -48,7 +59,9 @@ def update_category(
     db: Session, id: int, category_in: schemas.CategoryUpdate, user_id: int
 ) -> models.Category:
     category = get_category(db, id, user_id)
-    for field, value in category_in.model_dump(exclude_unset=True).items():
+    changes = category_in.model_dump(exclude_unset=True)
+    logger.info("PATCH category %s (user %s): %s", id, user_id, changes)
+    for field, value in changes.items():
         setattr(category, field, value)
     db.commit()
     db.refresh(category)
@@ -57,5 +70,6 @@ def update_category(
 
 def delete_category(db: Session, id: int, user_id: int) -> None:
     category = get_category(db, id, user_id)
+    logger.info("DELETE category %s (user %s)", id, user_id)
     db.delete(category)
     db.commit()

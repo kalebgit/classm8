@@ -51,23 +51,27 @@ export class CourseEdit implements OnInit {
   /** "Guardar" del modal: aplica el nombre si cambió y CIERRA el modal. */
   save(): void {
     const n = this.name().trim();
+    console.log('[course-edit] save()', { nuevo: n, actual: this.course().name });
     if (!n) {
       this.status.set({ kind: 'error', text: 'El nombre no puede estar vacío.' });
       return;
     }
     if (n === this.course().name) {
-      // Nada que guardar en el nombre, pero puede que haya editado categorías.
       this.done.emit('Materia guardada.');
       return;
     }
     this.busy.set(true);
     this.api.update(this.course().id, { name: n }).subscribe({
-      next: () => {
+      next: (res) => {
+        console.log('[course-edit] PATCH ok', res);
         this.busy.set(false);
         this.changed.emit();
         this.done.emit('Materia actualizada.');
       },
-      error: this.err('No se pudo actualizar la materia.'),
+      error: (e) => {
+        console.error('[course-edit] PATCH error', e);
+        this.err('No se pudo actualizar la materia.')(e);
+      },
     });
   }
 
