@@ -12,7 +12,7 @@ class CourseCreate(CourseBase):
     categories: list[CategoryCreate] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _percentages_sum_100(self) -> "CourseCreate":
+    def _percentages_sum_100(self) -> CourseCreate:
         if self.categories:
             total = sum(c.percentage for c in self.categories)
             if total != 100:

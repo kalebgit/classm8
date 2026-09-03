@@ -2,6 +2,10 @@
   <button class="btn" (click)="modal.set('course')">+ Materia</button>
   <button class="btn" (click)="modal.set('deliverable')">+ Entregable</button>
   <button class="btn spacer" (click)="modal.set('analysis')">Analizar</button>
+  @if (auth.user(); as u) {
+    <span class="user">{{ u.name || u.email }}</span>
+    <button class="btn" (click)="logout()">Salir</button>
+  }
 </section>
 
 <div class="head">PENDIENTES — {{ pending().length }}</div>
