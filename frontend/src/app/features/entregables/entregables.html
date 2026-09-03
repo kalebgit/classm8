@@ -1,7 +1,55 @@
-<div class="head">ENTREGABLES — {{ all().length }}</div>
-<p class="soon">Filtros y ordenamiento: próximamente.</p>
+<div class="head">ENTREGABLES — {{ view().length }} / {{ all().length }}</div>
 
-@for (d of all(); track d.id) {
+<section class="filters">
+  <label>
+    Estado
+    <select [ngModel]="status()" (ngModelChange)="status.set($event)">
+      <option value="all">Todos</option>
+      <option value="pending">Pendientes</option>
+      <option value="overdue">Atrasados</option>
+      <option value="soon">Próximos 7 días</option>
+      <option value="submitted">Entregados sin calificar</option>
+      <option value="graded">Calificados</option>
+    </select>
+  </label>
+
+  <label>
+    Materia
+    <select
+      [ngModel]="courseId()"
+      (ngModelChange)="courseId.set($event); onCourseChange()"
+    >
+      <option [ngValue]="0">Todas</option>
+      @for (c of courseOptions(); track c.id) {
+        <option [ngValue]="c.id">{{ c.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label>
+    Criterio
+    <select [ngModel]="categoryId()" (ngModelChange)="categoryId.set($event)">
+      <option [ngValue]="0">Todos</option>
+      @for (cat of categoryOptions(); track cat.id) {
+        <option [ngValue]="cat.id">{{ cat.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label>
+    Ordenar
+    <select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+      <option value="due-asc">Fecha de entrega ↑</option>
+      <option value="due-desc">Fecha de entrega ↓</option>
+      <option value="grade-desc">Calificación ↓</option>
+      <option value="name">Nombre A–Z</option>
+    </select>
+  </label>
+
+  <button class="btn" type="button" (click)="clearFilters()">Limpiar</button>
+</section>
+
+@for (d of view(); track d.id) {
   <app-deliverable-card
     [deliverable]="d"
     (submit)="markSubmitted($event)"
@@ -9,7 +57,7 @@
     (remove)="removeDeliverable($event)"
   />
 } @empty {
-  <p class="empty">Sin entregables.</p>
+  <p class="empty">Nada coincide con los filtros.</p>
 }
 
 @if (editing(); as d) {

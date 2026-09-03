@@ -1,4 +1,27 @@
-.soon { padding: 8px 12px; color: var(--dim); font-size: 12px; }
+.filters {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 10px;
+  padding: 10px;
+  border-bottom: 1px dashed var(--line);
+  align-items: end;
+}
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  color: var(--dim);
+}
+.filters select { width: 100%; }
+.filters .btn { align-self: end; }
+
+@media (min-width: 620px) {
+  .filters { grid-template-columns: repeat(4, 1fr) max-content; }
+}
+
 .empty { padding: 12px; color: var(--dim); }
 
 app-deliverable-card {
