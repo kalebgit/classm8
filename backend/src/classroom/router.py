@@ -7,20 +7,15 @@
 - DELETE /classroom/connection -> olvida el refresh_token
 """
 
-import logging
-
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 
-from src.auth import service as auth_service
 from src.auth.dependencies import CurrentUser
 from src.classroom import schemas, service
 from src.classroom.constants import CLASSROOM_SCOPES
 from src.config import settings
 from src.dependencies import dbSession
-
-logger = logging.getLogger("classm8.classroom")
 
 router = APIRouter(prefix="/classroom", tags=["classroom"])
 
@@ -51,67 +46,26 @@ async def connect(request: Request, current_user: CurrentUser):
     )
 
 
-def _fail(reason: str) -> RedirectResponse:
-    logger.warning("classroom connect fallo: %s", reason)
-    return RedirectResponse(
-        f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=error"
-    )
-
-
-def _granted_scopes(token: dict) -> set[str]:
-    raw = token.get("scope", "")
-    return set(raw.split()) if isinstance(raw, str) else set(raw or [])
-
-
 @router.get("/callback")
 async def callback(request: Request, db: dbSession):
     uid = request.session.pop("classroom_connect_uid", None)
-
-    # Google puede volver con ?error=access_denied si el usuario canceló o si la
-    # app no está autorizada para esos scopes.
-    if err := request.query_params.get("error"):
-        return _fail(f"google devolvió error={err!r}")
-
     try:
         token = await oauth.google_classroom.authorize_access_token(request)
-    except Exception as exc:  # noqa: BLE001 - state inválido, code caducado, etc.
-        return _fail(f"authorize_access_token: {type(exc).__name__}: {exc}")
-
-    user = auth_service.get_user(db, uid) if uid else None
-    if user is None:
-        return _fail(f"no se recuperó el usuario de la sesión (uid={uid!r})")
-
-    # Verifica que Google concedió el scope de coursework (el de leer tareas).
-    # Si concedió otro (p.ej. student-submissions) el escaneo fallaría después.
-    granted = _granted_scopes(token)
-    needed = "https://www.googleapis.com/auth/classroom.coursework.me.readonly"
-    if needed not in granted:
-        return _fail(
-            f"falta el scope de coursework; google concedió: {sorted(granted)}"
+    except Exception:  # noqa: BLE001 - state inválido, code caducado, etc.
+        return RedirectResponse(
+            f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=error"
         )
 
     refresh_token = token.get("refresh_token")
-    if not refresh_token:
-        # Google no reemite refresh_token si ya hay una concesión vigente. Si el
-        # usuario ya tenía uno guardado, seguimos usándolo. Si no, hay que
-        # revocar el acceso en https://myaccount.google.com/permissions y
-        # reconectar.
-        if user.classroom_refresh_token:
-            logger.info(
-                "callback sin refresh_token nuevo; se conserva el guardado "
-                "(user_id=%s)",
-                user.id,
-            )
-            return RedirectResponse(
-                f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=connected"
-            )
-        return _fail(
-            "sin refresh_token y no hay uno guardado; revoca el acceso en "
-            "myaccount.google.com/permissions y reconecta"
+    from src.auth import service as auth_service
+
+    user = auth_service.get_user(db, uid) if uid else None
+    if user is None or not refresh_token:
+        return RedirectResponse(
+            f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=error"
         )
 
     service.save_refresh_token(db, user, refresh_token)
-    logger.info("classroom conectado para user_id=%s", user.id)
     return RedirectResponse(
         f"{settings.FRONTEND_CLASSROOM_RETURN_URL}?classroom=connected"
     )
