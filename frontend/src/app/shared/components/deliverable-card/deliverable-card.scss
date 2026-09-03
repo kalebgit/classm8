@@ -62,32 +62,11 @@ $ok:    #5fbf6a;
   &.delivered { color: $dim; }
 }
 
-// fila de acciones: entregar / editar / eliminar
+// fila de acciones: entregar / calificar / editar / eliminar
+// (los estilos de .btn / .btn.danger / .btn.ok son globales en styles.scss)
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 8px;
-}
-
-.btn {
-  background: #3a2708;
-  border: 1px solid $line;
-  color: $amber;
-  font-family: 'VT323', monospace;
-  font-size: 14px;
-  letter-spacing: 1px;
-  padding: 5px 10px;
-  cursor: pointer;
-
-  &:hover {
-    background: #4a3308;
-    text-shadow: 0 0 5px rgba(255, 176, 0, .6);
-  }
-
-  &.danger {
-    color: $due;
-    border-color: $due;
-    &:hover { text-shadow: 0 0 5px rgba(255, 107, 71, .6); }
-  }
 }

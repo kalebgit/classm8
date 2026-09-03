@@ -7,6 +7,7 @@
   --dim:   #8a5f10;
   --due:   #ff6b47;
   --ok:    #5fbf6a;
+  --blue:  #5b9bff;   /* calificaciones > 100 */
 }
 
 * { box-sizing: border-box; }
@@ -35,16 +36,32 @@ body {
 
 /* botón terminal reutilizable */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   background: #3a2708;
   border: 1px solid var(--line);
   color: var(--amber);
   font-family: 'VT323', monospace;
   font-size: 14px;
-  letter-spacing: 1px;
+  letter-spacing: .5px;
+  line-height: 1.15;
   padding: 5px 10px;
   cursor: pointer;
+  /* el texto no se sale: se ajusta y, si no cabe, se parte */
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 .btn:hover { background: #4a3308; text-shadow: 0 0 5px rgba(255, 176, 0, .6); }
+.btn:disabled { opacity: .4; cursor: default; text-shadow: none; }
+
+/* variantes de color reutilizables */
+.btn.danger { color: var(--due);  border-color: var(--due); }
+.btn.ok     { color: var(--ok);   border-color: var(--ok); }
+.btn.ok:hover { text-shadow: 0 0 5px rgba(95, 191, 106, .6); }
 
 /* primitivas de formulario (todo el sistema es terminal) */
 label {

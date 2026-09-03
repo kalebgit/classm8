@@ -1,0 +1,23 @@
+.what {
+  color: var(--dim);
+  font-size: 13px;
+  margin: 0 0 6px;
+  overflow-wrap: anywhere;
+}
+.grade-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.grade-row input { flex: 1; }
+.grade-row .over {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: var(--dim);
+  flex: none;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}

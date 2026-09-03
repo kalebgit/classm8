@@ -18,7 +18,7 @@
 .filters select { width: 100%; }
 .filters .btn { align-self: end; }
 
-@media (min-width: 620px) {
+@media (min-width: 640px) {
   .filters { grid-template-columns: repeat(4, 1fr) max-content; }
 }
 

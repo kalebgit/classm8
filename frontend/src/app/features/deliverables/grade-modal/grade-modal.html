@@ -1,0 +1,25 @@
+<p class="what">{{ deliverable().name }}</p>
+
+<label>Calificación</label>
+<div class="grade-row">
+  <input
+    type="number"
+    min="0"
+    max="150"
+    [ngModel]="grade()"
+    (ngModelChange)="grade.set($event)"
+    autofocus
+  />
+  <span class="over">/ 100</span>
+</div>
+
+<app-status-line [status]="status()" />
+
+<div class="actions">
+  <button class="btn ok" type="button" [disabled]="busy()" (click)="save()">Guardar</button>
+  @if (deliverable().grade !== null) {
+    <button class="btn danger" type="button" [disabled]="busy()" (click)="clear()">
+      Quitar calif
+    </button>
+  }
+</div>

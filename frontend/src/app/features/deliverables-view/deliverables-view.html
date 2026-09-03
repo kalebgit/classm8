@@ -1,16 +1,24 @@
-<div class="head">ENTREGABLES — {{ view().length }} / {{ all().length }}</div>
+<div class="head">
+  {{ mode() === 'pending' ? 'NO ENTREGADOS' : 'ENTREGADOS' }} —
+  {{ view().length }} / {{ inModeCount() }}
+</div>
 
 <section class="filters">
   <label>
     Estado
-    <select [ngModel]="status()" (ngModelChange)="status.set($event)">
-      <option value="all">Todos</option>
-      <option value="pending">Pendientes</option>
-      <option value="overdue">Atrasados</option>
-      <option value="soon">Próximos 7 días</option>
-      <option value="submitted">Entregados sin calificar</option>
-      <option value="graded">Calificados</option>
-    </select>
+    @if (mode() === 'pending') {
+      <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        <option value="all">Todos (no entregados)</option>
+        <option value="overdue">Atrasados</option>
+        <option value="soon">Próximos 7 días</option>
+      </select>
+    } @else {
+      <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        <option value="all">Todos (entregados)</option>
+        <option value="ungraded">Sin calificar</option>
+        <option value="graded">Calificados</option>
+      </select>
+    }
   </label>
 
   <label>
@@ -27,7 +35,7 @@
   </label>
 
   <label>
-    Criterio
+    Criterio de evaluación
     <select [ngModel]="categoryId()" (ngModelChange)="categoryId.set($event)">
       <option [ngValue]="0">Todos</option>
       @for (cat of categoryOptions(); track cat.id) {
@@ -53,6 +61,7 @@
   <app-deliverable-card
     [deliverable]="d"
     (submit)="markSubmitted($event)"
+    (grade)="openGrade($event)"
     (edit)="openEdit($event)"
     (remove)="removeDeliverable($event)"
   />
@@ -63,5 +72,11 @@
 @if (editing(); as d) {
   <app-modal-shell title="Editar entregable" (close)="editing.set(null)">
     <app-deliverable-edit [deliverable]="d" (done)="onEdited()" (deleted)="onEdited()" />
+  </app-modal-shell>
+}
+
+@if (grading(); as d) {
+  <app-modal-shell title="Calificar" (close)="grading.set(null)">
+    <app-grade-modal [deliverable]="d" (saved)="onGraded()" />
   </app-modal-shell>
 }

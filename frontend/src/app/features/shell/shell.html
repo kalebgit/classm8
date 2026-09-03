@@ -3,20 +3,25 @@
   <button class="btn" (click)="modal.set('deliverable')">+ Entregable</button>
 </section>
 
+<p class="hint">
+  <strong>1.</strong> Crea tus materias &nbsp;·&nbsp; <strong>2.</strong> Escanea tus tareas de Classroom
+</p>
+
 <section class="actions classroom-actions">
   <button
     class="btn"
+    [class.ok]="classroomConnected()"
     [disabled]="classroomConnected()"
     (click)="connectClassroom()"
   >
-    {{ classroomConnected() ? '✓ Classroom conectado' : 'Conectar Classroom' }}
+    {{ classroomConnected() ? '✓ Conectado' : 'Conectar Classroom' }}
   </button>
   <button
     class="btn"
     [disabled]="!classroomConnected()"
     (click)="modal.set('classroom')"
   >
-    Escanear Classroom
+    Escanear tareas Classroom
   </button>
   @if (classroomConnected()) {
     <button class="btn danger" (click)="disconnectClassroom()">Desconectar</button>

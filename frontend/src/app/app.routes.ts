@@ -15,14 +15,16 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./features/pendientes/pendientes').then((m) => m.Pendientes),
-        title: 'Pendientes',
+          import('./features/deliverables-view/deliverables-view').then((m) => m.DeliverablesView),
+        data: { mode: 'pending' },
+        title: 'No entregados',
       },
       {
-        path: 'entregables',
+        path: 'entregados',
         loadComponent: () =>
-          import('./features/entregables/entregables').then((m) => m.Entregables),
-        title: 'Entregables',
+          import('./features/deliverables-view/deliverables-view').then((m) => m.DeliverablesView),
+        data: { mode: 'submitted' },
+        title: 'Entregados',
       },
       {
         path: 'materias',

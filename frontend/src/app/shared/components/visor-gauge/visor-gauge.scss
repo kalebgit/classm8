@@ -1,0 +1,41 @@
+.visor {
+  width: 120px;
+  height: 120px;
+  display: block;
+}
+.visor.sm { width: 52px; height: 52px; }
+.visor.lg { width: 190px; height: 190px; }
+
+.pane { fill: #0a0702; }
+
+.liquid {
+  fill: var(--visor-color, var(--amber));
+  opacity: 0.9;
+}
+.surface {
+  fill: #fff;
+  opacity: 0.35;
+}
+
+.frame {
+  fill: none;
+  stroke: var(--visor-color, var(--amber));
+  stroke-width: 2;
+}
+.frame-outer {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+}
+.rivet {
+  fill: var(--visor-color, var(--amber));
+}
+
+.num {
+  fill: #fff;
+  stroke: #0a0702;
+  stroke-width: 3;
+  paint-order: stroke;
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+}

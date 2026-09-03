@@ -12,6 +12,7 @@ import { gradeTone, TONE_COLOR } from '../../grade-color';
 export class DeliverableCard {
   deliverable = input.required<Deliverable>();
   submit = output<number>(); // marcar entregado
+  grade = output<Deliverable>(); // abrir modal de calificación
   edit = output<Deliverable>(); // abrir modal de edición
   remove = output<number>(); // eliminar
 

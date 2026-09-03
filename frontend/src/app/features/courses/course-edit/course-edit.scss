@@ -1,10 +1,24 @@
-.cat-row {
+/* modo solo-lectura: campos "shadowed" para resaltar que no se editan */
+.ce.locked input {
+  opacity: 0.55;
+  background: #0a0702;
+  cursor: default;
+}
+
+.crit-row {
   display: grid;
-  grid-template-columns: 1fr 64px 32px 32px;
+  grid-template-columns: 1fr 64px 32px;
   gap: 6px;
   margin-bottom: 6px;
 }
-.cat-row.new { margin-top: 8px; }
+.ce.locked .crit-row {
+  grid-template-columns: 1fr 64px; /* sin botón de quitar */
+}
+
+.add-crit {
+  width: 100%;
+  margin-top: 4px;
+}
 
 .total {
   font-size: 12px;
@@ -20,9 +34,4 @@
   margin-top: 12px;
   border-top: 1px dashed var(--line);
   padding-top: 10px;
-}
-
-.btn.danger {
-  color: var(--due);
-  border-color: var(--due);
 }

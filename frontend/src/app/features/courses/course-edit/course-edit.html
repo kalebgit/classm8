@@ -1,43 +1,55 @@
-<form [formGroup]="nameForm" (ngSubmit)="save()">
+<div class="ce" [class.locked]="!editMode()">
   <label>Nombre</label>
-  <input formControlName="name" autocomplete="off" />
-</form>
+  <input
+    [value]="name()"
+    (input)="name.set($any($event.target).value)"
+    [readonly]="!editMode()"
+    autocomplete="off"
+  />
 
-<label>Categorías existentes</label>
-@for (c of categories(); track c.id) {
-  <div class="cat-row">
-    <input
-      [value]="c.name"
-      (input)="patchCat(c, 'name', $any($event.target).value)"
-      autocomplete="off"
-    />
-    <input
-      type="number"
-      min="0"
-      max="100"
-      [value]="c.percentage"
-      (input)="patchCat(c, 'percentage', $any($event.target).value)"
-    />
-    <button class="btn" type="button" (click)="saveCategory(c)" title="Guardar">✓</button>
-    <button class="btn danger" type="button" (click)="removeCategory(c)" title="Eliminar">×</button>
+  <label>Criterios de evaluación</label>
+  @for (c of visibleCrits(); track c.idx) {
+    <div class="crit-row">
+      <input
+        [value]="c.name"
+        (input)="patchCrit(c.idx, 'name', $any($event.target).value)"
+        [readonly]="!editMode()"
+        placeholder="Examen"
+        autocomplete="off"
+      />
+      <input
+        type="number"
+        min="0"
+        max="100"
+        [value]="c.percentage"
+        (input)="patchCrit(c.idx, 'percentage', $any($event.target).value)"
+        [readonly]="!editMode()"
+      />
+      @if (editMode()) {
+        <button class="btn danger" type="button" (click)="removeCrit(c.idx)" title="Quitar">×</button>
+      }
+    </div>
+  } @empty {
+    <p class="dim">Sin criterios.</p>
+  }
+
+  @if (editMode()) {
+    <button class="btn add-crit" type="button" (click)="addCrit()">+ criterio de evaluación</button>
+  }
+
+  <p class="total" [class.bad]="total() < 100">
+    total: {{ total() }} @if (total() < 100) { (debe sumar ≥ 100) }
+  </p>
+
+  <app-status-line [status]="status()" />
+
+  <div class="foot">
+    @if (!editMode()) {
+      <button class="btn" type="button" (click)="startEdit()">Editar</button>
+      <button class="btn danger" type="button" (click)="onDelete()">Eliminar materia</button>
+    } @else {
+      <button class="btn ok" type="button" [disabled]="busy()" (click)="save()">Guardar</button>
+      <button class="btn" type="button" [disabled]="busy()" (click)="cancel()">Cancelar</button>
+    }
   </div>
-} @empty {
-  <p class="dim">Sin categorías.</p>
-}
-
-<label>Agregar categoría</label>
-<form class="cat-row new" [formGroup]="newCatForm" (ngSubmit)="addCategory()">
-  <input formControlName="name" placeholder="Nombre" autocomplete="off" />
-  <input formControlName="percentage" type="number" min="0" max="100" />
-  <button class="btn" type="submit" [disabled]="busy()" title="Agregar">+</button>
-  <span></span>
-</form>
-
-<p class="total" [class.bad]="total > 100">total: {{ total }}</p>
-
-<app-status-line [status]="status()" />
-
-<div class="foot">
-  <button class="btn" type="button" [disabled]="busy()" (click)="save()">Guardar nombre y cerrar</button>
-  <button class="btn danger" type="button" (click)="onDelete()">Eliminar materia</button>
 </div>

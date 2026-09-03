@@ -18,7 +18,10 @@ export class CoursesService {
         return this.http.post<CourseWithCategories>(this.base, body)
     }
 
-    update(id: number, body: { name?: string }): Observable<Course>{
+    update(
+        id: number,
+        body: Partial<Pick<Course, 'name' | 'extra_points' | 'rounding_enabled' | 'rounding_method'>>,
+    ): Observable<Course>{
         return this.http.patch<Course>(`${this.base}/${id}`, body)
     }
 

@@ -2,37 +2,75 @@
 
 @if (!loaded()) {
   <p class="msg">Calculando…</p>
-} @else if (all().length === 0) {
+} @else if (rows().length === 0 && pendingCourses().length === 0) {
   <p class="msg">Aún no hay materias.</p>
 } @else {
-  <!-- círculo global -->
+  <!-- promedio general -->
   <section class="global">
+    <p class="gtitle">PROMEDIO GENERAL</p>
     @if (globalAvg() !== null) {
-      <app-pixel-gauge [value]="globalAvg()!" size="lg" />
-      <p class="caption">
-        promedio de {{ evaluated().length }}
-        {{ evaluated().length === 1 ? 'materia' : 'materias' }} con avance
-      </p>
+      <app-visor-gauge [value]="globalAvg()!" size="lg" />
+      <p class="click-info">click en una materia para el desglose</p>
     } @else {
       <p class="msg">Sin calificaciones todavía.</p>
     }
   </section>
 
-  <!-- columna por materia -->
+  <!-- una fila por materia -->
   <section class="courses">
-    @for (c of evaluated(); track c.course_id) {
-      <div class="course" [class.open]="expanded() === c.course_id">
-        <button class="row" type="button" (click)="toggle(c.course_id)">
-          <app-pixel-gauge [value]="c.current_grade" size="sm" />
+    @for (r of rows(); track r.analysis.course_id) {
+      <div class="course" [class.open]="expanded() === r.analysis.course_id">
+        <button class="row" type="button" (click)="toggle(r.analysis.course_id)">
+          <app-visor-gauge [value]="r.final" size="sm" />
           <span class="info">
-            <span class="cname">{{ c.course_name }}</span>
-            <span class="sub">{{ c.evaluated_percentage }}% evaluado</span>
+            <span class="cname">{{ r.analysis.course_name }}</span>
+            <span class="sub">
+              {{ r.analysis.evaluated_percentage }}% evaluado ·
+              base {{ fmt2(r.base10) }}/10
+              @if (r.course.extra_points > 0) { · +{{ r.course.extra_points }} extra }
+              @if (r.course.rounding_enabled) { · {{ LABEL[r.course.rounding_method] }} }
+              → <strong>{{ fmt2(r.final) }}</strong>
+            </span>
           </span>
         </button>
 
-        @if (expanded() === c.course_id) {
+        <!-- controles de la fila -->
+        <div class="ctrls">
+          <label>
+            Extra
+            <input
+              type="number"
+              min="0"
+              max="5"
+              [value]="r.course.extra_points"
+              (change)="setExtra(r, $any($event.target).value)"
+            />
+          </label>
+          <label class="chk">
+            <input
+              type="checkbox"
+              [checked]="r.course.rounding_enabled"
+              (change)="toggleRounding(r)"
+            />
+            redondear
+          </label>
+          <label>
+            método
+            <select
+              [value]="r.course.rounding_method"
+              (change)="setMethod(r, $any($event.target).value)"
+              [disabled]="!r.course.rounding_enabled"
+            >
+              @for (m of METHODS; track m) {
+                <option [value]="m">{{ LABEL[m] }} — {{ NAME[m] }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        @if (expanded() === r.analysis.course_id) {
           <div class="detail">
-            @for (cat of c.categories; track cat.category_id) {
+            @for (cat of r.analysis.categories; track cat.category_id) {
               <div class="cat">
                 <span>{{ cat.name }} · {{ cat.percentage }}%</span>
                 <span>
@@ -41,18 +79,31 @@
                 </span>
               </div>
             }
+            <div class="cat calc">
+              <span>calif base (0–10)</span><span>{{ fmt2(r.base10) }}</span>
+            </div>
+            @if (r.course.extra_points > 0) {
+              <div class="cat calc">
+                <span>+ puntos extra ({{ r.course.extra_points }})</span>
+                <span>{{ fmt2(r.withExtra) }}</span>
+              </div>
+            }
+            <div class="cat calc final">
+              <span>final {{ r.course.rounding_enabled ? '(' + LABEL[r.course.rounding_method] + ')' : '(sin redondeo)' }}</span>
+              <span>{{ fmt2(r.final) }}</span>
+            </div>
           </div>
         }
       </div>
     }
 
-    @if (pendingEval().length > 0) {
+    @if (pendingCourses().length > 0) {
       <p class="pending-title">Sin evaluar aún</p>
-      @for (c of pendingEval(); track c.course_id) {
+      @for (a of pendingCourses(); track a.course_id) {
         <div class="course dim">
           <div class="row static">
             <span class="info">
-              <span class="cname">{{ c.course_name }}</span>
+              <span class="cname">{{ a.course_name }}</span>
               <span class="sub">0% evaluado</span>
             </span>
           </div>
