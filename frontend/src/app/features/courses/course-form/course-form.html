@@ -2,7 +2,7 @@
   <label>Nombre</label>
   <input formControlName="name" autocomplete="off" />
 
-  <label>Categorías</label>
+  <label>Criterios de evaluación</label>
   <div formArrayName="categories">
     @for (c of categories.controls; track $index) {
       <div class="row" [formGroupName]="$index">
@@ -14,7 +14,7 @@
   </div>
 
   <div class="foot">
-    <button class="btn" type="button" (click)="addCategory()">+ categoría</button>
+    <button class="btn" type="button" (click)="addCategory()">+ criterio</button>
     <span [class.bad]="total > 100">total: {{ total }}</span>
   </div>
 
