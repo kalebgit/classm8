@@ -1,23 +1,42 @@
+/* fila 1: acciones. rejilla: en móvil 2 columnas iguales, en pantallas
+   anchas se acomodan en una sola línea. */
 .actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
-  padding: 10px;
+  padding: 10px 10px 0;
+}
+.actions .btn { width: 100%; }
+
+@media (min-width: 560px) {
+  .actions {
+    grid-template-columns: repeat(4, max-content);
+  }
+}
+
+/* fila 2: identidad. avatar + nombre a la izquierda, Salir a la derecha. */
+.identity {
+  display: flex;
   align-items: center;
+  gap: 8px;
+  padding: 8px 10px 10px;
 }
-.actions .spacer { margin-left: auto; }
-.actions .user {
-  align-self: center;
-  color: var(--dim);
-  font-size: 13px;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.actions .avatar {
+.identity .avatar {
   border: 1px solid var(--line);
   image-rendering: pixelated;
   display: block;
+  flex: none;
 }
+.identity .user {
+  flex: 1;
+  min-width: 0;
+  color: var(--dim);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.identity .btn { flex: none; }
 
 .notice {
   background: var(--panel);

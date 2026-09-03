@@ -2,13 +2,16 @@
   <button class="btn" (click)="modal.set('course')">+ Materia</button>
   <button class="btn" (click)="modal.set('deliverable')">+ Entregable</button>
   <button class="btn" (click)="modal.set('classroom')">⟳ Classroom</button>
-  <button class="btn spacer" (click)="modal.set('analysis')">Analizar</button>
-  @if (auth.user(); as u) {
+  <button class="btn" (click)="modal.set('analysis')">Analizar</button>
+</section>
+
+@if (auth.user(); as u) {
+  <section class="identity">
     <img class="avatar" [src]="auth.avatarUrl" [alt]="u.name || u.email" width="28" height="28" />
     <span class="user">{{ u.name || u.email }}</span>
     <button class="btn" (click)="logout()">Salir</button>
-  }
-</section>
+  </section>
+}
 
 @if (notice(); as n) {
   <div class="notice" (click)="notice.set(null)">{{ n }}</div>

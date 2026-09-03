@@ -1,6 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from './core/api/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +7,4 @@ import { AuthService } from './core/api/auth.service';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {
-  auth = inject(AuthService);
-}
+export class App {}

@@ -1,6 +1,6 @@
 from authlib.integrations.starlette_client import OAuth
-from fastapi import APIRouter, Request
-from fastapi.responses import RedirectResponse, Response
+from fastapi import APIRouter, Request, Response
+from fastapi.responses import RedirectResponse
 
 from src.auth import service
 from src.auth.avatar import render_avatar_png
@@ -82,12 +82,19 @@ def me_avatar(current_user: CurrentUser):
     )
 
 
-@router.post("/logout")
+@router.post("/logout", status_code=204)
 def logout():
-    resp = RedirectResponse(settings.FRONTEND_LOGIN_SUCCESS_URL, status_code=303)
+    """Borra la cookie de sesión. Es una llamada XHR desde el front, así que
+    responde 204 (sin redirect: el HttpClient seguiría el 3xx y rompería)."""
+    resp = Response(status_code=204)
+    # delete_cookie debe repetir los MISMOS flags con que se creó (secure,
+    # samesite, domain, path) o el navegador no la reconoce y no la borra.
     resp.delete_cookie(
         settings.SESSION_COOKIE_NAME,
         domain=settings.SESSION_COOKIE_DOMAIN,
         path="/",
+        secure=settings.COOKIE_SECURE,
+        samesite="lax",
+        httponly=True,
     )
     return resp

@@ -47,9 +47,13 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
-    await firstValueFrom(
-      this.http.post(`${this.base}/logout`, {}, { withCredentials: true }),
-    );
+    try {
+      await firstValueFrom(
+        this.http.post(`${this.base}/logout`, {}, { withCredentials: true }),
+      );
+    } catch {
+      // aunque el backend falle, localmente cerramos sesión igual
+    }
     this.user.set(null);
   }
 }
