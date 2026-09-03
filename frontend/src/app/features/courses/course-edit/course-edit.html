@@ -1,11 +1,23 @@
-<label>Nombre</label>
-<input [(ngModel)]="name" autocomplete="off" />
+<form [formGroup]="nameForm" (ngSubmit)="save()">
+  <label>Nombre</label>
+  <input formControlName="name" autocomplete="off" />
+</form>
 
-<label>Categorías</label>
+<label>Categorías existentes</label>
 @for (c of categories(); track c.id) {
   <div class="cat-row">
-    <input [(ngModel)]="c.name" autocomplete="off" />
-    <input type="number" [(ngModel)]="c.percentage" min="0" max="100" />
+    <input
+      [value]="c.name"
+      (input)="patchCat(c, 'name', $any($event.target).value)"
+      autocomplete="off"
+    />
+    <input
+      type="number"
+      min="0"
+      max="100"
+      [value]="c.percentage"
+      (input)="patchCat(c, 'percentage', $any($event.target).value)"
+    />
     <button class="btn" type="button" (click)="saveCategory(c)" title="Guardar">✓</button>
     <button class="btn danger" type="button" (click)="removeCategory(c)" title="Eliminar">×</button>
   </div>
@@ -13,20 +25,19 @@
   <p class="dim">Sin categorías.</p>
 }
 
-<div class="cat-row new">
-  <input [ngModel]="newCat().name" (ngModelChange)="newCat.set({ name: $event, percentage: newCat().percentage })"
-         placeholder="Nueva categoría" autocomplete="off" />
-  <input type="number" min="0" max="100"
-         [ngModel]="newCat().percentage" (ngModelChange)="newCat.set({ name: newCat().name, percentage: $event })" />
-  <button class="btn" type="button" (click)="addCategory()" title="Agregar">+</button>
+<label>Agregar categoría</label>
+<form class="cat-row new" [formGroup]="newCatForm" (ngSubmit)="addCategory()">
+  <input formControlName="name" placeholder="Nombre" autocomplete="off" />
+  <input formControlName="percentage" type="number" min="0" max="100" />
+  <button class="btn" type="submit" [disabled]="busy()" title="Agregar">+</button>
   <span></span>
-</div>
+</form>
 
 <p class="total" [class.bad]="total > 100">total: {{ total }}</p>
 
 <app-status-line [status]="status()" />
 
 <div class="foot">
-  <button class="btn" type="button" [disabled]="busy()" (click)="save()">Guardar y cerrar</button>
+  <button class="btn" type="button" [disabled]="busy()" (click)="save()">Guardar nombre y cerrar</button>
   <button class="btn danger" type="button" (click)="onDelete()">Eliminar materia</button>
 </div>

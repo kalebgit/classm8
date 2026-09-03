@@ -57,6 +57,7 @@ export class DeliverableEdit implements OnInit {
   }
 
   submit(): void {
+    console.log('[deliverable-edit] submit()', this.form.getRawValue(), 'valid:', this.form.valid);
     if (this.form.invalid) {
       this.status.set({ kind: 'error', text: 'Revisa los campos: falta nombre, categoría o fecha.' });
       return;
