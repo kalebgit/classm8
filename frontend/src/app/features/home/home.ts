@@ -105,8 +105,24 @@ export class Home implements OnInit {
     });
   }
 
+  /** Un formulario de CREAR guardó: cerrar y refrescar. */
   onSaved(): void {
     this.modal.set(null);
+    this.loadCourses();
+    this.reload();
+  }
+
+  /** Un formulario de EDITAR guardó algo: refrescar SIN cerrar (el usuario
+      puede seguir editando; el modal muestra su propia confirmación). */
+  onEditedRefresh(): void {
+    this.loadCourses();
+    this.reload();
+  }
+
+  /** Se eliminó lo que se estaba editando: ya no hay nada, cerrar. */
+  onDeleted(): void {
+    this.modal.set(null);
+    this.notice.set('Eliminado.');
     this.loadCourses();
     this.reload();
   }

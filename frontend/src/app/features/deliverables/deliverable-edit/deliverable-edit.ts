@@ -4,6 +4,7 @@ import { CoursesService } from '../../../core/api/courses.service';
 import { DeliverablesService } from '../../../core/api/deliverables.service';
 import { Deliverable } from '../../../core/models/deliverable.model';
 import { Category } from '../../../core/models/category.model';
+import { StatusLine, Status } from '../../../shared/components/status-line/status-line';
 
 /** Convierte un ISO UTC a el string que espera <input type="datetime-local">. */
 function toLocalInput(iso: string): string {
@@ -14,7 +15,7 @@ function toLocalInput(iso: string): string {
 
 @Component({
   selector: 'app-deliverable-edit',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, StatusLine],
   templateUrl: './deliverable-edit.html',
 })
 export class DeliverableEdit implements OnInit {
@@ -27,6 +28,8 @@ export class DeliverableEdit implements OnInit {
   deleted = output<void>();
 
   categories = signal<Category[]>([]);
+  busy = signal(false);
+  status = signal<Status>(null);
 
   form = this.fb.group({
     name: ['', Validators.required],
@@ -48,21 +51,23 @@ export class DeliverableEdit implements OnInit {
     this.coursesApi.categories(d.course_id).subscribe((c) => this.categories.set(c));
   }
 
-  /** El grade solo tiene sentido si está entregado. */
   get gradeEnabled(): boolean {
     return this.form.controls.submitted.value;
   }
 
   submit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.status.set({ kind: 'error', text: 'Revisa los campos: falta nombre, categoría o fecha.' });
+      return;
+    }
     const v = this.form.getRawValue();
     const d = this.deliverable();
 
-    // submitted_at: si se marca y no lo estaba, ahora; si se desmarca, null.
     let submitted_at: string | null | undefined;
     if (v.submitted && !d.submitted_at) submitted_at = new Date().toISOString();
     else if (!v.submitted && d.submitted_at) submitted_at = null;
 
+    this.busy.set(true);
     this.deliverablesApi
       .update(d.id, {
         name: v.name,
@@ -71,11 +76,25 @@ export class DeliverableEdit implements OnInit {
         ...(submitted_at !== undefined ? { submitted_at } : {}),
         grade: v.submitted ? v.grade : null,
       })
-      .subscribe(() => this.saved.emit());
+      .subscribe({
+        next: () => {
+          this.busy.set(false);
+          this.status.set({ kind: 'ok', text: 'Entregable actualizado.' });
+          this.saved.emit();
+        },
+        error: (e: unknown) => {
+          this.busy.set(false);
+          const detail = (e as { error?: { detail?: string } })?.error?.detail;
+          this.status.set({ kind: 'error', text: detail ?? 'No se pudo actualizar.' });
+        },
+      });
   }
 
   onDelete(): void {
     if (!confirm(`¿Eliminar "${this.deliverable().name}"?`)) return;
-    this.deliverablesApi.remove(this.deliverable().id).subscribe(() => this.deleted.emit());
+    this.deliverablesApi.remove(this.deliverable().id).subscribe({
+      next: () => this.deleted.emit(),
+      error: () => this.status.set({ kind: 'error', text: 'No se pudo eliminar.' }),
+    });
   }
 }

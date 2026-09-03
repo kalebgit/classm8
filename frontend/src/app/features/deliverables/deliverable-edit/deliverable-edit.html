@@ -23,8 +23,10 @@
     <input type="number" formControlName="grade" min="0" />
   }
 
+  <app-status-line [status]="status()" />
+
   <div class="row-actions">
-    <button class="btn" type="submit">Guardar</button>
+    <button class="btn" type="submit" [disabled]="busy()">Guardar</button>
     <button class="btn danger" type="button" (click)="onDelete()">Eliminar</button>
   </div>
 </form>

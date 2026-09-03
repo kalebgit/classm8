@@ -53,13 +53,21 @@
 
 @if (modal() === 'deliverable-edit' && editingDeliverable(); as d) {
   <app-modal-shell title="Editar entregable" (close)="modal.set(null)">
-    <app-deliverable-edit [deliverable]="d" (saved)="onSaved()" (deleted)="onSaved()" />
+    <app-deliverable-edit
+      [deliverable]="d"
+      (saved)="onEditedRefresh()"
+      (deleted)="onDeleted()"
+    />
   </app-modal-shell>
 }
 
 @if (modal() === 'course-edit' && editingCourse(); as c) {
   <app-modal-shell title="Editar materia" (close)="modal.set(null)">
-    <app-course-edit [course]="c" (saved)="onSaved()" (deleted)="onSaved()" />
+    <app-course-edit
+      [course]="c"
+      (saved)="onEditedRefresh()"
+      (deleted)="onDeleted()"
+    />
   </app-modal-shell>
 }
 

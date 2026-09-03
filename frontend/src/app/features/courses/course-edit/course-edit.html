@@ -1,8 +1,5 @@
 <label>Nombre</label>
-<div class="name-row">
-  <input [(ngModel)]="name" autocomplete="off" />
-  <button class="btn" type="button" [disabled]="busy()" (click)="saveName()">Guardar</button>
-</div>
+<input [(ngModel)]="name" autocomplete="off" />
 
 <label>Categorías</label>
 @for (c of categories(); track c.id) {
@@ -27,6 +24,9 @@
 
 <p class="total" [class.bad]="total > 100">total: {{ total }}</p>
 
+<app-status-line [status]="status()" />
+
 <div class="foot">
+  <button class="btn" type="button" [disabled]="busy()" (click)="save()">Guardar</button>
   <button class="btn danger" type="button" (click)="onDelete()">Eliminar materia</button>
 </div>
