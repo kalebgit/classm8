@@ -14,6 +14,25 @@
   }
 }
 
+/* fila de acciones de classroom: separada visualmente */
+.classroom-actions {
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px dashed var(--line);
+  margin-top: 8px;
+  padding-top: 8px;
+}
+.classroom-actions .btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.classroom-actions .btn.danger {
+  color: var(--due);
+  border-color: var(--due);
+}
+@media (min-width: 560px) {
+  .classroom-actions { grid-template-columns: repeat(3, max-content); }
+}
+
 /* fila 2: identidad. avatar + nombre a la izquierda, Salir a la derecha. */
 .identity {
   display: flex;

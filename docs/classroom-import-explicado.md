@@ -5,6 +5,13 @@ te deja convertirlos en materias/entregables. Lo único que Classroom decide es
 **el nombre y la fecha de entrega**; todo lo demás (a qué materia va, la
 categoría, si renombras la tarea) lo eliges tú en un modal.
 
+> Guías relacionadas:
+> - [`classroom-conexion-explicado.md`](./classroom-conexion-explicado.md) —
+>   los tipos de token, `access_type=offline`, el flujo OAuth completo y la
+>   arquitectura de archivos.
+> - [`oauth-google-flujo-explicado.md`](./oauth-google-flujo-explicado.md) —
+>   el login con Google (base conceptual de OAuth).
+
 ---
 
 ## 1. Por qué es un OAuth aparte del login

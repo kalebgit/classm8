@@ -5,15 +5,17 @@
 
   @case ('disconnected') {
     <p class="msg">
-      classm8 necesita permiso para leer tus cursos y tareas de Google Classroom
-      (solo lectura).
+      La conexión con Classroom expiró. Cierra este modal y pulsa
+      <strong>“Conectar Classroom”</strong> de nuevo.
     </p>
-    <button class="btn" type="button" (click)="connect()">Conectar Classroom</button>
   }
 
   @case ('error') {
     <app-status-line [status]="status()" />
-    <button class="btn" type="button" (click)="connect()">Reintentar conexión</button>
+    <p class="msg dim">
+      Si el problema persiste, desconecta y vuelve a conectar Classroom desde el
+      menú.
+    </p>
   }
 
   <!-- PASO 1: elegir curso de Classroom -->

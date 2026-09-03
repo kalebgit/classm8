@@ -3,6 +3,10 @@
 Guía conceptual del flujo que ya está implementado en `src/auth/`. El objetivo es
 que entiendas **qué información viaja, quién la genera, y qué espera cada llamada**.
 
+> Para el **acceso a datos de Google Classroom** (segundo flujo OAuth, con
+> `refresh_token` y acceso offline), ver
+> [`classroom-conexion-explicado.md`](./classroom-conexion-explicado.md).
+
 ---
 
 ## 0. El problema que resuelve OAuth

@@ -143,10 +143,6 @@ export class ClassroomImport implements OnInit {
       });
   }
 
-  connect(): void {
-    this.classroom.connect();
-  }
-
   pendingInPicked = computed(
     () => this.pickedCourse()?.coursework.filter((w) => !w.already_imported).length ?? 0,
   );

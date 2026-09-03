@@ -1,8 +1,31 @@
 <section class="actions">
   <button class="btn" (click)="modal.set('course')">+ Materia</button>
   <button class="btn" (click)="modal.set('deliverable')">+ Entregable</button>
-  <button class="btn" (click)="modal.set('classroom')">⟳ Classroom</button>
   <button class="btn" (click)="modal.set('analysis')">Analizar</button>
+</section>
+
+<section class="actions classroom-actions">
+  <button
+    class="btn"
+    [disabled]="classroomConnected()"
+    (click)="connectClassroom()"
+    [title]="classroomConnected() ? 'Ya conectado' : 'Autorizar acceso a tu Google Classroom'"
+  >
+    {{ classroomConnected() ? '✓ Classroom conectado' : 'Conectar Classroom' }}
+  </button>
+  <button
+    class="btn"
+    [disabled]="!classroomConnected()"
+    (click)="modal.set('classroom')"
+    title="Importar cursos y tareas de Classroom"
+  >
+    Escanear Classroom
+  </button>
+  @if (classroomConnected()) {
+    <button class="btn danger" (click)="disconnectClassroom()" title="Revocar el acceso guardado">
+      Desconectar
+    </button>
+  }
 </section>
 
 @if (auth.user(); as u) {

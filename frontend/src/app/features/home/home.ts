@@ -12,6 +12,7 @@ import { CourseEdit } from '../courses/course-edit/course-edit';
 import { CourseList } from '../courses/course-list/course-list';
 import { AnalysisPanel } from '../analysis/analysis-panel/analysis-panel';
 import { ClassroomImport } from '../classroom/classroom-import/classroom-import';
+import { ClassroomService } from '../../core/api/classroom.service';
 import { AuthService } from '../../core/api/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -36,6 +37,7 @@ type Modal = 'course' | 'deliverable' | 'analysis' | 'classroom' | 'course-edit'
 export class Home implements OnInit {
   private deliverablesApi = inject(DeliverablesService);
   private coursesApi = inject(CoursesService);
+  private classroomApi = inject(ClassroomService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   auth = inject(AuthService);
@@ -44,6 +46,8 @@ export class Home implements OnInit {
   pendingCount = computed(() => this.deliverables().filter((d) => !d.submitted_at).length);
   courses = signal<Course[]>([]);
   modal = signal<Modal>(null);
+  /** ¿el usuario ya autorizó el acceso a su Google Classroom? */
+  classroomConnected = computed(() => this.auth.user()?.classroom_connected ?? false);
   /** entregable / materia que se está editando en su modal */
   editingDeliverable = signal<Deliverable | null>(null);
   editingCourse = signal<Course | null>(null);
@@ -53,13 +57,30 @@ export class Home implements OnInit {
     this.reload();
     this.loadCourses();
 
+    // Volvimos del consentimiento de Classroom (?classroom=connected|error).
     const flag = this.route.snapshot.queryParamMap.get('classroom');
     if (flag === 'connected') {
-      this.auth.refresh();
+      // refresca /auth/me para que classroom_connected pase a true y se
+      // habilite "Escanear".
+      this.auth.refresh().then(() => this.notice.set('Classroom conectado.'));
+    } else if (flag === 'error') {
+      this.notice.set('No se pudo conectar Classroom. Intenta de nuevo.');
     }
     if (flag) {
       this.router.navigate([], { queryParams: {}, replaceUrl: true });
     }
+  }
+
+  connectClassroom(): void {
+    // navegación de página completa al consentimiento de Google
+    this.classroomApi.connect();
+  }
+
+  disconnectClassroom(): void {
+    if (!confirm('¿Desconectar Classroom? classm8 olvidará el permiso guardado.')) return;
+    this.classroomApi.disconnect().subscribe(() => {
+      this.auth.refresh().then(() => this.notice.set('Classroom desconectado.'));
+    });
   }
 
   private loadCourses(): void {
