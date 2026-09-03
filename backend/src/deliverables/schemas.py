@@ -27,8 +27,8 @@ class DeliverableUpdate(BaseModel):
     name: str | None = None
     due_date: datetime | None = None
     submitted_at: datetime | None = None
-    # Sin tope superior: hay criterios que permiten pasar de 100 (puntos extra).
-    grade: int | None = Field(default=None, ge=0)
+    # 0-150: deja margen para puntos extra por criterio.
+    grade: int | None = Field(default=None, ge=0, le=150)
     category_id: int | None = None
     previous_phase_id: int | None = None
 

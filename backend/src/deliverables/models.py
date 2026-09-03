@@ -26,9 +26,8 @@ class Deliverable(Base):
         DateTime(timezone=True), nullable=True
     )
 
-    # Calificación obtenida (entero). Null mientras no se califica. No tiene tope
-    # superior: algunos criterios de evaluación permiten pasar de 100 (bonus,
-    # puntos extra).
+    # Calificación obtenida (entero, 0-150). Null mientras no se califica. El
+    # tope de 150 deja margen para puntos extra sin volverse absurdo.
     grade: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # id del coursework de Google Classroom del que se importó este entregable.
@@ -62,7 +61,7 @@ class Deliverable(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "grade IS NULL OR grade >= 0",
+            "grade IS NULL OR (grade >= 0 AND grade <= 150)",
             name="ck_deliverable_grade_range",
         ),
     )

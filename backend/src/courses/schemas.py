@@ -1,6 +1,10 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from src.categories.schemas import CategoryCreate, CategoryOut
+
+RoundingMethod = Literal["trunc", "ceil", "half_up", "half_up_strict"]
 
 
 class CourseBase(BaseModel):
@@ -26,13 +30,20 @@ class CourseCreate(CourseBase):
 
 
 class CourseUpdate(BaseModel):
-    # Body parcial para PATCH /courses/{id}. Solo el nombre; las categorías se
-    # editan una a una con los endpoints /categories.
+    # Body parcial para PATCH /courses/{id}. Las categorías se editan una a una
+    # con los endpoints /categories.
     name: str | None = None
+    # Ajustes de la pestaña Análisis:
+    extra_points: int | None = Field(default=None, ge=0, le=5)
+    rounding_enabled: bool | None = None
+    rounding_method: RoundingMethod | None = None
 
 
 class CourseOut(CourseBase):
-    id: int  # agregamos el id pues es algo que recuperamos de la base de datos
+    id: int
+    extra_points: int = 0
+    rounding_enabled: bool = True
+    rounding_method: RoundingMethod = "half_up"
     model_config = ConfigDict(from_attributes=True)
 
 
