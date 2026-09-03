@@ -67,6 +67,9 @@ export class Home implements OnInit {
 
   onSaved(): void {
     this.modal.set(null);
+    // Recargar AMBOS: una materia nueva debe aparecer en "Analizar" y en el
+    // form de entregables; un entregable nuevo, en la lista de pendientes.
+    this.loadCourses();
     this.reload();
   }
 
