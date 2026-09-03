@@ -38,13 +38,11 @@ export class Home implements OnInit {
     this.loadCourses();
 
     // Volvimos del consentimiento de Classroom (?classroom=connected|error).
+    // El botón está oculto por ahora, pero si alguien llega con el flag lo
+    // limpiamos igual.
     const flag = this.route.snapshot.queryParamMap.get('classroom');
     if (flag === 'connected') {
-      this.notice.set('Classroom conectado. Abre "Classroom" para importar.');
       this.auth.refresh();
-      this.modal.set('classroom');
-    } else if (flag === 'error') {
-      this.notice.set('No se pudo conectar Classroom.');
     }
     if (flag) {
       this.router.navigate([], { queryParams: {}, replaceUrl: true });

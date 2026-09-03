@@ -1,7 +1,8 @@
 <section class="actions">
   <button class="btn" (click)="modal.set('course')">+ Materia</button>
   <button class="btn" (click)="modal.set('deliverable')">+ Entregable</button>
-  <button class="btn" (click)="modal.set('classroom')">⟳ Classroom</button>
+  <!-- TODO: reactivar cuando el scope de Classroom quede bien en Google Cloud -->
+  <button class="btn" (click)="modal.set('classroom')" hidden>⟳ Classroom</button>
   <button class="btn" (click)="modal.set('analysis')">Analizar</button>
 </section>
 
