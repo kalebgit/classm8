@@ -1,6 +1,7 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Deliverable } from '../../../core/models/deliverable.model';
+import { gradeTone, TONE_COLOR } from '../../grade-color';
 
 @Component({
   selector: 'app-deliverable-card',
@@ -18,4 +19,10 @@ export class DeliverableCard {
     const d = this.deliverable();
     return !d.submitted_at && new Date(d.due_date) < new Date();
   }
+
+  /** color del número de la calificación según el corte */
+  gradeColor = computed(() => {
+    const t = gradeTone(this.deliverable().grade);
+    return t ? TONE_COLOR[t] : 'var(--ok)';
+  });
 }

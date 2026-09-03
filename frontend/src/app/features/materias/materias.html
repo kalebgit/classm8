@@ -1,0 +1,18 @@
+<div class="head">MATERIAS — {{ courses().length }}</div>
+
+<app-course-list
+  [courses]="courses()"
+  (edit)="openEdit($event)"
+  (remove)="removeCourse($event)"
+/>
+
+@if (editing(); as c) {
+  <app-modal-shell title="Editar materia" (close)="editing.set(null)">
+    <app-course-edit
+      [course]="c"
+      (changed)="onEditedRefresh()"
+      (done)="onEditDone()"
+      (deleted)="onEditDone()"
+    />
+  </app-modal-shell>
+}

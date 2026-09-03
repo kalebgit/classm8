@@ -11,7 +11,9 @@
       <span class="due">Entrega: {{ deliverable().due_date | date: 'short' }}</span>
 
       @if (deliverable().grade !== null) {
-        <span class="badge grade">Calif: {{ deliverable().grade }}</span>
+        <span class="badge grade" [style.color]="gradeColor()" [style.border-color]="gradeColor()">
+          Calif: {{ deliverable().grade }}
+        </span>
       } @else if (deliverable().submitted_at) {
         <span class="badge delivered">Entregado, sin calificar</span>
       }

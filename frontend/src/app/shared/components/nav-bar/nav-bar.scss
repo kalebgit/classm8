@@ -1,0 +1,26 @@
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 10px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.nav a {
+  flex: 1;
+  text-align: center;
+  min-width: 90px;
+  padding: 6px 8px;
+  background: #241804;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+.nav a:hover { color: var(--amber); }
+.nav a.on {
+  background: var(--amber);
+  color: var(--panel);
+  border-color: var(--amber);
+}

@@ -1,4 +1,10 @@
-<svg viewBox="0 0 44 44" class="gauge">
+<svg
+  viewBox="0 0 44 44"
+  class="gauge"
+  [class.sm]="size() === 'sm'"
+  [class.lg]="size() === 'lg'"
+  [style.--gauge-color]="color()"
+>
   <clipPath id="disc"><circle cx="22" cy="22" r="21" /></clipPath>
 
   <g clip-path="url(#disc)" shape-rendering="crispEdges">

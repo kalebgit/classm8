@@ -1,15 +1,24 @@
-.gauge { width: 120px; height: 120px; }
+.gauge {
+  width: 120px;
+  height: 120px;
+}
+.gauge.sm { width: 56px; height: 56px; }
+.gauge.lg { width: 200px; height: 200px; }
 
-.ring { fill: none; stroke: var(--amber); stroke-width: 2; }
+.ring {
+  fill: none;
+  stroke: var(--gauge-color, var(--amber));
+  stroke-width: 2;
+}
 
 .bar { fill: none; }
-.bar.on { fill: var(--amber); }
+.bar.on { fill: var(--gauge-color, var(--amber)); }
 
 .num {
-  fill: var(--amber);
+  fill: var(--gauge-color, var(--amber));
   stroke: var(--panel);
   stroke-width: 3;
-  paint-order: stroke;            /* halo oscuro → el número se lee sobre las barras */
+  paint-order: stroke; /* halo oscuro → el número se lee sobre las barras */
   font-family: 'VT323', monospace;
   font-size: 14px;
 }

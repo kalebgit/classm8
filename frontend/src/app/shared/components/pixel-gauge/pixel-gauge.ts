@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { gradeTone, TONE_COLOR } from '../../grade-color';
 
 @Component({
   selector: 'app-pixel-gauge',
@@ -6,16 +7,25 @@ import { Component, computed, input } from '@angular/core';
   styleUrl: './pixel-gauge.scss',
 })
 export class PixelGauge {
-  value = input.required<number>(); // 0..100
+  value = input.required<number>(); // 0..100+
+  /** 'sm' | 'md' | 'lg' — controla el tamaño vía CSS var. */
+  size = input<'sm' | 'md' | 'lg'>('md');
 
   label = computed(() => Math.round(this.value()));
 
+  /** color del anillo, número y barras según el corte de calificación */
+  color = computed(() => {
+    const t = gradeTone(this.value());
+    return t ? TONE_COLOR[t] : 'var(--amber)';
+  });
+
   bars = computed(() => {
     const total = 11;
-    const filled = (this.value() / 100) * total;
+    // barras llenas: la calif se clampa a 100 para la parte visual del disco
+    const filled = (Math.min(this.value(), 100) / 100) * total;
     return Array.from({ length: total }, (_, i) => ({
-      y: i * 4,                    // 11 barras de 4 de alto → viewBox 44
-      on: total - i <= filled,     // se encienden desde la de abajo
+      y: i * 4,
+      on: total - i <= filled,
     }));
   });
 }

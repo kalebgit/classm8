@@ -1,0 +1,56 @@
+<section class="actions">
+  <button class="btn" (click)="modal.set('course')">+ Materia</button>
+  <button class="btn" (click)="modal.set('deliverable')">+ Entregable</button>
+</section>
+
+<section class="actions classroom-actions">
+  <button
+    class="btn"
+    [disabled]="classroomConnected()"
+    (click)="connectClassroom()"
+  >
+    {{ classroomConnected() ? '✓ Classroom conectado' : 'Conectar Classroom' }}
+  </button>
+  <button
+    class="btn"
+    [disabled]="!classroomConnected()"
+    (click)="modal.set('classroom')"
+  >
+    Escanear Classroom
+  </button>
+  @if (classroomConnected()) {
+    <button class="btn danger" (click)="disconnectClassroom()">Desconectar</button>
+  }
+</section>
+
+@if (auth.user(); as u) {
+  <section class="identity">
+    <img class="avatar" [src]="auth.avatarUrl" [alt]="u.name || u.email" width="28" height="28" />
+    <span class="user">{{ u.name || u.email }}</span>
+    <button class="btn" (click)="logout()">Salir</button>
+  </section>
+}
+
+<app-nav-bar />
+
+@if (notice(); as n) {
+  <div class="notice" (click)="notice.set(null)">{{ n }}</div>
+}
+
+<router-outlet />
+
+@if (modal() === 'course') {
+  <app-modal-shell title="Nueva materia" (close)="modal.set(null)">
+    <app-course-form (saved)="onSaved()" />
+  </app-modal-shell>
+}
+@if (modal() === 'deliverable') {
+  <app-modal-shell title="Nuevo entregable" (close)="modal.set(null)">
+    <app-deliverable-form [courses]="courses()" (saved)="onSaved()" />
+  </app-modal-shell>
+}
+@if (modal() === 'classroom') {
+  <app-modal-shell title="Importar de Classroom" (close)="modal.set(null)">
+    <app-classroom-import [courses]="courses()" (imported)="onImported()" />
+  </app-modal-shell>
+}

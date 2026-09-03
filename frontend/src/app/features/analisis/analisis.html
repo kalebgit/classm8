@@ -1,0 +1,63 @@
+<div class="head">ANÁLISIS</div>
+
+@if (!loaded()) {
+  <p class="msg">Calculando…</p>
+} @else if (all().length === 0) {
+  <p class="msg">Aún no hay materias.</p>
+} @else {
+  <!-- círculo global -->
+  <section class="global">
+    @if (globalAvg() !== null) {
+      <app-pixel-gauge [value]="globalAvg()!" size="lg" />
+      <p class="caption">
+        promedio de {{ evaluated().length }}
+        {{ evaluated().length === 1 ? 'materia' : 'materias' }} con avance
+      </p>
+    } @else {
+      <p class="msg">Sin calificaciones todavía.</p>
+    }
+  </section>
+
+  <!-- columna por materia -->
+  <section class="courses">
+    @for (c of evaluated(); track c.course_id) {
+      <div class="course" [class.open]="expanded() === c.course_id">
+        <button class="row" type="button" (click)="toggle(c.course_id)">
+          <app-pixel-gauge [value]="c.current_grade" size="sm" />
+          <span class="info">
+            <span class="cname">{{ c.course_name }}</span>
+            <span class="sub">{{ c.evaluated_percentage }}% evaluado</span>
+          </span>
+        </button>
+
+        @if (expanded() === c.course_id) {
+          <div class="detail">
+            @for (cat of c.categories; track cat.category_id) {
+              <div class="cat">
+                <span>{{ cat.name }} · {{ cat.percentage }}%</span>
+                <span>
+                  {{ cat.average ?? '—' }} → {{ cat.points }} pts
+                  ({{ cat.graded_count }}/{{ cat.total_count }})
+                </span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (pendingEval().length > 0) {
+      <p class="pending-title">Sin evaluar aún</p>
+      @for (c of pendingEval(); track c.course_id) {
+        <div class="course dim">
+          <div class="row static">
+            <span class="info">
+              <span class="cname">{{ c.course_name }}</span>
+              <span class="sub">0% evaluado</span>
+            </span>
+          </div>
+        </div>
+      }
+    }
+  </section>
+}

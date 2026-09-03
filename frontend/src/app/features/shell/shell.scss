@@ -1,5 +1,3 @@
-/* fila 1: acciones. rejilla: en móvil 2 columnas iguales, en pantallas
-   anchas se acomodan en una sola línea. */
 .actions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -8,32 +6,20 @@
 }
 .actions .btn { width: 100%; }
 
-@media (min-width: 560px) {
-  .actions {
-    grid-template-columns: repeat(4, max-content);
-  }
-}
-
-/* fila de acciones de classroom: separada visualmente */
 .classroom-actions {
   grid-template-columns: 1fr 1fr;
   border-top: 1px dashed var(--line);
   margin-top: 8px;
   padding-top: 8px;
 }
-.classroom-actions .btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-.classroom-actions .btn.danger {
-  color: var(--due);
-  border-color: var(--due);
-}
+.classroom-actions .btn:disabled { opacity: 0.4; cursor: default; }
+.classroom-actions .btn.danger { color: var(--due); border-color: var(--due); }
+
 @media (min-width: 560px) {
+  .actions { grid-template-columns: repeat(4, max-content); }
   .classroom-actions { grid-template-columns: repeat(3, max-content); }
 }
 
-/* fila 2: identidad. avatar + nombre a la izquierda, Salir a la derecha. */
 .identity {
   display: flex;
   align-items: center;
@@ -62,14 +48,7 @@
   border: 1px solid var(--line);
   color: var(--amber);
   font-size: 13px;
-  margin: 0 10px 8px;
+  margin: 8px 10px 0;
   padding: 6px 10px;
   cursor: pointer;
-}
-
-.empty { padding: 12px; color: var(--dim); }
-
-app-deliverable-card {
-  display: block;
-  margin: 8px 10px;
 }
