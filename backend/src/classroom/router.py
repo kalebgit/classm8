@@ -25,30 +25,35 @@ logger = logging.getLogger("classm8.classroom")
 router = APIRouter(prefix="/classroom", tags=["classroom"])
 
 # Cliente OAuth separado del login: mismos client_id/secret, pero pide los
-# scopes de Classroom y `access_type=offline` para recibir refresh_token.
+# scopes de Classroom.
 oauth = OAuth()
 oauth.register(
     name="google_classroom",
     client_id=settings.GOOGLE_CLIENT_ID,
     client_secret=settings.GOOGLE_CLIENT_SECRET,
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-    client_kwargs={
-        "scope": " ".join(CLASSROOM_SCOPES),
-        "access_type": "offline",  # -> refresh_token
-        "prompt": "consent",  # fuerza refresh_token aunque ya haya consentido
-        "include_granted_scopes": "true",  # autorización incremental
-    },
+    client_kwargs={"scope": " ".join(CLASSROOM_SCOPES)},
 )
 
 
 @router.get("/connect")
 async def connect(request: Request, current_user: CurrentUser):
     """El front manda aquí el navegador entero. Guardamos el id del usuario en
-    la sesión de Starlette para recuperarlo en el callback."""
+    la sesión de Starlette para recuperarlo en el callback.
+
+    `access_type=offline` + `prompt=consent` van AQUÍ (en la URL de
+    autorización), no en client_kwargs: Google solo emite refresh_token si
+    estos parámetros llegan en la petición /o/oauth2/v2/auth."""
     request.session["classroom_connect_uid"] = current_user.id
-    return await oauth.google_classroom.authorize_redirect(
-        request, settings.GOOGLE_CLASSROOM_REDIRECT_URI
+    resp = await oauth.google_classroom.authorize_redirect(
+        request,
+        settings.GOOGLE_CLASSROOM_REDIRECT_URI,
+        access_type="offline",
+        prompt="consent",
+        include_granted_scopes="true",
     )
+    logger.info("classroom /connect -> %s", resp.headers.get("location"))
+    return resp
 
 
 def _fail(reason: str) -> RedirectResponse:
