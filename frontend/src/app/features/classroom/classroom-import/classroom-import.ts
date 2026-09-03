@@ -1,158 +1,153 @@
 import { Component, inject, input, output, signal, computed, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { ClassroomService } from '../../../core/api/classroom.service';
 import { CoursesService } from '../../../core/api/courses.service';
 import { Course } from '../../../core/models/course.model';
 import { Category } from '../../../core/models/category.model';
-import { ScannedCourse, ImportItem } from '../../../core/models/classroom.model';
+import { ScannedCourse, ScannedCoursework } from '../../../core/models/classroom.model';
+import { StatusLine, Status } from '../../../shared/components/status-line/status-line';
 
-/** Estado editable de un coursework en el modal (lo que el usuario ajusta). */
-interface Row {
-  classroomId: string;
-  name: string; // editable, default = título de Classroom
-  dueDate: string; // fija (ISO), solo lectura
-  alreadyImported: boolean;
-  selected: boolean;
-  categoryId: number; // solo aplica si el curso mapea a una materia existente
-}
-
-/** Estado editable de un curso escaneado: a qué materia de classm8 va. */
-interface CourseMap {
-  classroomId: string;
-  classroomName: string;
-  // 0 = crear materia nueva con `classroomName`; >0 = id de materia existente
-  targetCourseId: number;
-  rows: Row[];
-}
+type Step = 'loading' | 'disconnected' | 'courses' | 'coursework' | 'form' | 'done' | 'error';
 
 @Component({
   selector: 'app-classroom-import',
-  imports: [FormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, StatusLine],
   templateUrl: './classroom-import.html',
   styleUrl: './classroom-import.scss',
 })
 export class ClassroomImport implements OnInit {
+  private fb = inject(NonNullableFormBuilder);
   private classroom = inject(ClassroomService);
   private coursesApi = inject(CoursesService);
 
-  /** Materias que ya tiene el usuario (para el mapeo). */
+  /** Materias que ya tiene el usuario en classm8. */
   courses = input.required<Course[]>();
+  /** Se importó al menos un entregable: el padre refresca. */
   imported = output<void>();
 
-  state = signal<'loading' | 'disconnected' | 'ready' | 'importing' | 'error'>('loading');
-  errorMsg = signal('');
-  maps = signal<CourseMap[]>([]);
-  /** categorías por materia existente, cargadas bajo demanda */
-  private categoriesByCourse = new Map<number, Category[]>();
-  categoriesCache = signal(0); // bump para refrescar la vista al cargar categorías
+  step = signal<Step>('loading');
+  status = signal<Status>(null);
 
-  selectedCount = computed(() =>
-    this.maps().reduce((n, m) => n + m.rows.filter((r) => r.selected && !r.alreadyImported).length, 0),
-  );
+  // paso 1: cursos de Classroom detectados (con entregables fechados)
+  scanned = signal<ScannedCourse[]>([]);
+  // paso 2: curso de Classroom elegido
+  pickedCourse = signal<ScannedCourse | null>(null);
+  // paso 3: entregable de Classroom elegido
+  pickedWork = signal<ScannedCoursework | null>(null);
+
+  // categorías de la materia de classm8 seleccionada en el form
+  categories = signal<Category[]>([]);
+  busy = signal(false);
+  importedCount = signal(0);
+
+  form = this.fb.group({
+    name: ['', Validators.required], // editable, default = título de Classroom
+    course_id: [0, Validators.min(1)], // materia de classm8
+    category_id: [0, Validators.min(1)], // "tipo" de entregable
+  });
+
+  constructor() {
+    // al elegir materia de classm8, cargar sus categorías (una sola suscripción)
+    this.form.controls.course_id.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((id) => {
+        this.form.controls.category_id.setValue(0);
+        this.categories.set([]);
+        if (id) this.coursesApi.categories(id).subscribe((c) => this.categories.set(c));
+      });
+  }
 
   ngOnInit(): void {
     this.classroom.scan().subscribe({
       next: (res) => {
         if (!res.connected) {
-          this.state.set('disconnected');
+          this.step.set('disconnected');
           return;
         }
-        this.maps.set(res.courses.map((c) => this.toMap(c)));
-        this.state.set('ready');
+        this.scanned.set(res.courses);
+        this.step.set('courses');
       },
       error: (err) => {
-        // 428 = conectado pero el token murió -> tratar como desconectado
-        if (err.status === 428) this.state.set('disconnected');
+        if (err.status === 428) this.step.set('disconnected');
         else {
-          this.errorMsg.set(err.error?.detail ?? 'No se pudo leer Classroom');
-          this.state.set('error');
+          this.status.set({ kind: 'error', text: err.error?.detail ?? 'No se pudo leer Classroom.' });
+          this.step.set('error');
         }
       },
     });
   }
 
-  private toMap(c: ScannedCourse): CourseMap {
-    // Auto-mapea por nombre exacto (case-insensitive) si ya existe la materia.
-    const match = this.courses().find(
-      (x) => x.name.trim().toLowerCase() === c.name.trim().toLowerCase(),
-    );
-    const targetCourseId = match?.id ?? 0;
-    if (targetCourseId) this.loadCategories(targetCourseId);
-    return {
-      classroomId: c.classroom_id,
-      classroomName: c.name,
-      targetCourseId,
-      rows: c.coursework.map((w) => ({
-        classroomId: w.classroom_id,
-        name: w.title,
-        dueDate: w.due_at,
-        alreadyImported: w.already_imported,
-        selected: !w.already_imported,
-        categoryId: 0,
-      })),
-    };
+  // --- paso 1 -> 2 ---
+  pickCourse(c: ScannedCourse): void {
+    this.pickedCourse.set(c);
+    this.step.set('coursework');
   }
 
-  onTargetChange(map: CourseMap): void {
-    if (map.targetCourseId) this.loadCategories(map.targetCourseId);
-    // al cambiar de materia, la categoría elegida deja de ser válida
-    map.rows.forEach((r) => (r.categoryId = 0));
-    this.maps.set([...this.maps()]);
+  // --- paso 2 -> 3 ---
+  pickWork(w: ScannedCoursework): void {
+    if (w.already_imported) return;
+    this.pickedWork.set(w);
+    this.form.reset({ name: w.title, course_id: 0, category_id: 0 });
+    this.categories.set([]);
+    this.status.set(null);
+    this.step.set('form');
   }
 
-  private loadCategories(courseId: number): void {
-    if (this.categoriesByCourse.has(courseId)) return;
-    this.coursesApi.categories(courseId).subscribe((cats) => {
-      this.categoriesByCourse.set(courseId, cats);
-      this.categoriesCache.update((n) => n + 1);
-    });
+  // --- navegación atrás ---
+  backToCourses(): void {
+    this.pickedCourse.set(null);
+    this.step.set('courses');
+  }
+  backToCoursework(): void {
+    this.pickedWork.set(null);
+    this.step.set('coursework');
   }
 
-  categoriesFor(courseId: number): Category[] {
-    this.categoriesCache(); // dep para recomputar
-    return this.categoriesByCourse.get(courseId) ?? [];
+  // --- guardar el entregable ---
+  save(): void {
+    if (this.form.invalid) {
+      this.status.set({ kind: 'error', text: 'Elige materia y tipo, y pon un nombre.' });
+      return;
+    }
+    const w = this.pickedWork()!;
+    const { name, course_id, category_id } = this.form.getRawValue();
+    this.busy.set(true);
+    this.classroom
+      .import([
+        {
+          classroom_coursework_id: w.classroom_id,
+          name: name.trim(),
+          due_date: w.due_at, // FIJA, no editable
+          course_id,
+          new_course_name: null,
+          category_id,
+        },
+      ])
+      .subscribe({
+        next: () => {
+          this.busy.set(false);
+          this.importedCount.update((n) => n + 1);
+          // marcar como importado en la lista y volver al paso 2
+          w.already_imported = true;
+          this.pickedWork.set(null);
+          this.status.set({ kind: 'ok', text: `"${name}" importado.` });
+          this.imported.emit();
+          this.step.set('coursework');
+        },
+        error: (err) => {
+          this.busy.set(false);
+          this.status.set({ kind: 'error', text: err.error?.detail ?? 'No se pudo importar.' });
+        },
+      });
   }
-
-  /** true si la fila necesita categoría y aún no la eligió. */
-  needsCategory(map: CourseMap, row: Row): boolean {
-    return row.selected && !row.alreadyImported && map.targetCourseId > 0 && row.categoryId === 0;
-  }
-
-  canImport = computed(() => {
-    if (this.selectedCount() === 0) return false;
-    return this.maps().every((m) =>
-      m.rows.every((r) => !this.needsCategory(m, r)),
-    );
-  });
 
   connect(): void {
     this.classroom.connect();
   }
 
-  submit(): void {
-    if (!this.canImport()) return;
-    const items: ImportItem[] = [];
-    for (const m of this.maps()) {
-      for (const r of m.rows) {
-        if (!r.selected || r.alreadyImported) continue;
-        items.push({
-          classroom_coursework_id: r.classroomId,
-          name: r.name.trim(),
-          due_date: r.dueDate,
-          course_id: m.targetCourseId > 0 ? m.targetCourseId : null,
-          new_course_name: m.targetCourseId > 0 ? null : m.classroomName,
-          category_id: m.targetCourseId > 0 ? r.categoryId : null,
-        });
-      }
-    }
-    this.state.set('importing');
-    this.classroom.import(items).subscribe({
-      next: () => this.imported.emit(),
-      error: (err) => {
-        this.errorMsg.set(err.error?.detail ?? 'La importación falló');
-        this.state.set('error');
-      },
-    });
-  }
+  pendingInPicked = computed(
+    () => this.pickedCourse()?.coursework.filter((w) => !w.already_imported).length ?? 0,
+  );
 }

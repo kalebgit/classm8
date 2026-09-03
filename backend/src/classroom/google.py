@@ -18,7 +18,6 @@ from googleapiclient.errors import HttpError
 from src.auth.models import User
 from src.classroom import security
 from src.classroom.constants import (
-    CLASSROOM_SCOPES,
     COURSE_STATE_ACTIVE,
     COURSEWORK_STATE_PUBLISHED,
     GOOGLE_TOKEN_URI,
@@ -35,13 +34,16 @@ logger = logging.getLogger("classm8.classroom")
 def _credentials(user: User) -> Credentials:
     if not user.classroom_refresh_token:
         raise ClassroomNotConnectedError("Classroom no está conectado")
+    # No pasamos `scopes=`: el refresh_token ya trae sus scopes concedidos.
+    # Declararlos aquí haría que google-auth valide "scope solicitado ==
+    # concedido" y falle si Google devolvió alias distintos (course-work vs
+    # coursework).
     return Credentials(
         token=None,
         refresh_token=security.decrypt(user.classroom_refresh_token),
         token_uri=GOOGLE_TOKEN_URI,
         client_id=settings.GOOGLE_CLIENT_ID,
         client_secret=settings.GOOGLE_CLIENT_SECRET,
-        scopes=CLASSROOM_SCOPES,
     )
 
 

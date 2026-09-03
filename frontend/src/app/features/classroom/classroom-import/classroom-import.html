@@ -1,4 +1,4 @@
-@switch (state()) {
+@switch (step()) {
   @case ('loading') {
     <p class="msg">Leyendo Classroom…</p>
   }
@@ -11,76 +11,80 @@
     <button class="btn" type="button" (click)="connect()">Conectar Classroom</button>
   }
 
-  @case ('importing') {
-    <p class="msg">Importando…</p>
-  }
-
   @case ('error') {
-    <p class="msg bad">{{ errorMsg() }}</p>
+    <app-status-line [status]="status()" />
     <button class="btn" type="button" (click)="connect()">Reintentar conexión</button>
   }
 
-  @case ('ready') {
-    @if (maps().length === 0) {
-      <p class="msg">No hay cursos con tareas fechadas en tu Classroom.</p>
-    } @else {
-      @for (m of maps(); track m.classroomId) {
-        <div class="course">
-          <div class="course-head">
-            <span class="cname">{{ m.classroomName }}</span>
-            <select [(ngModel)]="m.targetCourseId" (ngModelChange)="onTargetChange(m)">
-              <option [ngValue]="0">+ crear materia nueva</option>
-              @for (c of courses(); track c.id) {
-                <option [ngValue]="c.id">→ {{ c.name }}</option>
-              }
-            </select>
-          </div>
+  <!-- PASO 1: elegir curso de Classroom -->
+  @case ('courses') {
+    <p class="msg">Cursos de Classroom con tareas por importar:</p>
+    @for (c of scanned(); track c.classroom_id) {
+      <button class="pick" type="button" (click)="pickCourse(c)">
+        <span class="pname">{{ c.name }}</span>
+        <span class="count">{{ c.coursework.length }} tareas</span>
+      </button>
+    } @empty {
+      <p class="msg dim">No hay cursos con tareas fechadas en tu Classroom.</p>
+    }
+    <app-status-line [status]="status()" />
+  }
 
-          @for (r of m.rows; track r.classroomId) {
-            <div class="row" [class.dim]="r.alreadyImported">
-              <input
-                type="checkbox"
-                [(ngModel)]="r.selected"
-                [disabled]="r.alreadyImported"
-              />
-              <div class="fields">
-                <input
-                  class="rname"
-                  [(ngModel)]="r.name"
-                  [disabled]="r.alreadyImported || !r.selected"
-                  autocomplete="off"
-                />
-                <div class="meta">
-                  <span class="due">entrega: {{ r.dueDate | date: 'dd/MM/yy HH:mm' }}</span>
-                  @if (r.alreadyImported) {
-                    <span class="tag">ya importado</span>
-                  } @else if (m.targetCourseId > 0 && r.selected) {
-                    <select
-                      class="cat"
-                      [(ngModel)]="r.categoryId"
-                      [class.bad]="needsCategory(m, r)"
-                    >
-                      <option [ngValue]="0">categoría…</option>
-                      @for (cat of categoriesFor(m.targetCourseId); track cat.id) {
-                        <option [ngValue]="cat.id">{{ cat.name }} ({{ cat.percentage }}%)</option>
-                      }
-                    </select>
-                  } @else if (r.selected) {
-                    <span class="tag">materia nueva → categoría "General"</span>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      }
-
-      <div class="foot">
-        <span>{{ selectedCount() }} seleccionados</span>
-        <button class="btn" type="button" [disabled]="!canImport()" (click)="submit()">
-          Importar
+  <!-- PASO 2: elegir entregable del curso -->
+  @case ('coursework') {
+    @if (pickedCourse(); as c) {
+      <button class="back" type="button" (click)="backToCourses()">‹ cursos</button>
+      <p class="msg"><strong>{{ c.name }}</strong> — {{ pendingInPicked() }} sin importar</p>
+      @for (w of c.coursework; track w.classroom_id) {
+        <button
+          class="pick"
+          type="button"
+          [disabled]="w.already_imported"
+          (click)="pickWork(w)"
+        >
+          <span class="pname">{{ w.title }}</span>
+          <span class="count">
+            {{ w.due_at | date: 'dd/MM/yy HH:mm' }}
+            @if (w.already_imported) { · ya importado }
+          </span>
         </button>
-      </div>
+      }
+      <app-status-line [status]="status()" />
+    }
+  }
+
+  <!-- PASO 3: formulario de un entregable -->
+  @case ('form') {
+    @if (pickedWork(); as w) {
+      <button class="back" type="button" (click)="backToCoursework()">‹ tareas</button>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <label>Nombre</label>
+        <input formControlName="name" autocomplete="off" />
+
+        <label>Materia (en classm8)</label>
+        <select formControlName="course_id">
+          <option [ngValue]="0">— elige —</option>
+          @for (co of courses(); track co.id) {
+            <option [ngValue]="co.id">{{ co.name }}</option>
+          }
+        </select>
+
+        <label>Tipo de entregable</label>
+        <select formControlName="category_id">
+          <option [ngValue]="0">— elige —</option>
+          @for (cat of categories(); track cat.id) {
+            <option [ngValue]="cat.id">{{ cat.name }} ({{ cat.percentage }}%)</option>
+          }
+        </select>
+
+        <label>Fecha de entrega (de Classroom, fija)</label>
+        <input type="text" [value]="w.due_at | date: 'dd/MM/yyyy HH:mm'" disabled />
+
+        <app-status-line [status]="status()" />
+
+        <button class="btn" type="submit" [disabled]="busy()">Guardar entregable</button>
+      </form>
     }
   }
 }

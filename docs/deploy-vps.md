@@ -148,9 +148,21 @@ del login).
 En **APIs y servicios → Biblioteca**, busca y **habilita "Google Classroom API"**
 en el proyecto (si no, el escaneo da 502).
 
-En la pantalla de consentimiento → **Público**, agrega tu correo de Gmail como
-usuario de prueba (si la app sigue en modo "Testing"). Los scopes de Classroom
-(`classroom.courses.readonly`, `classroom.coursework.me.readonly`) son de solo
+En **Pantalla de consentimiento de OAuth → Acceso a los datos → Agregar o
+quitar permisos**, agrega estos dos scopes de solo lectura:
+
+```
+https://www.googleapis.com/auth/classroom.courses.readonly
+https://www.googleapis.com/auth/classroom.course-work.readonly
+```
+
+> La consola de Google Cloud llama al segundo `classroom.course-work.readonly`
+> (con guion); la API REST lo documenta como `classroom.coursework.me.readonly`
+> (sin guion). Es el MISMO permiso — "ver las tareas asignadas". El backend
+> pide el nombre con guion porque es el que la consola registra.
+
+En la pantalla de consentimiento → **Público**, agrega tu correo como usuario
+de prueba (si la app sigue en modo "Testing"). Estos scopes son de solo
 lectura y no requieren verificación para usuarios de prueba.
 
 ---
