@@ -1,0 +1,23 @@
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 64px 16px;
+  text-align: center;
+}
+
+.login h1 {
+  font-family: 'VT323', monospace;
+  font-size: 40px;
+  margin: 0;
+}
+
+.login p {
+  color: var(--dim);
+  margin: 0;
+}
+
+.login .btn {
+  margin-top: 8px;
+}

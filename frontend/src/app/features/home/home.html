@@ -1,0 +1,40 @@
+<section class="actions">
+  <button class="btn" (click)="modal.set('course')">+ Materia</button>
+  <button class="btn" (click)="modal.set('deliverable')">+ Entregable</button>
+  <button class="btn spacer" (click)="modal.set('analysis')">Analizar</button>
+  @if (auth.user(); as u) {
+    <span class="user">{{ u.name || u.email }}</span>
+    <button class="btn" (click)="logout()">Salir</button>
+  }
+</section>
+
+<div class="head">PENDIENTES — {{ pending().length }}</div>
+
+@if (modal() === 'course') {
+    <!--TODO: que pasaria si no estuviese el title que en codigo dice required?-->
+  <app-modal-shell title="Nueva materia" (close)="modal.set(null)">
+    <app-course-form (saved)="onSaved()" />
+  </app-modal-shell>
+}
+
+@if (modal() === 'deliverable') {
+  <app-modal-shell title="Nuevo entregable" (close)="modal.set(null)">
+    <app-deliverable-form [courses]="courses()" (saved)="onSaved()" />
+  </app-modal-shell>
+}
+@if (modal() === 'analysis') {
+  <app-modal-shell title="Análisis" (close)="modal.set(null)">
+    <app-analysis-panel [courses]="courses()" />
+  </app-modal-shell>
+}
+
+
+<!--recordamos que para llamar signals se pone en notacion de funcion-->
+@for (d of pending(); track d.id) {
+  <app-deliverable-card [deliverable]="d" (submit)="markSubmitted($event)" />
+} 
+<!--esta notacion es cuando no hay nada en el for-->
+@empty {
+  <p class="empty">Sin pendientes.</p>
+}
+

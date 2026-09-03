@@ -1,0 +1,75 @@
+// --- paleta (mismos tokens que el resto del sistema) ---
+$panel: #160f05;
+$line:  #4a3308;
+$amber: #ffb000;
+$dim:   #8a5f10;
+$due:   #ff6b47;   // color de resalte para la fecha de entrega
+$ok:    #5fbf6a;
+
+.ticket {
+  border: 1px solid $line;
+  background: $panel;
+  font-family: 'Share Tech Mono', monospace;
+  color: $amber;
+}
+
+// franja superior solida con la categoria
+.head {
+  background: $amber;
+  color: $panel;
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+}
+
+.body {
+  padding: 10px;
+}
+
+.name {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+// pie: fecha a la izquierda, estado/accion a la derecha
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed $line;
+  padding-top: 8px;
+  font-size: 11px;
+}
+
+.due {
+  color: $due;
+  text-shadow: 0 0 4px rgba(255, 107, 71, .6);
+}
+
+// estado: calificado / entregado sin calificar
+.badge {
+  padding: 3px 8px;
+  border: 1px solid $line;
+  letter-spacing: .5px;
+
+  &.grade     { color: $ok; border-color: $ok; }
+  &.delivered { color: $dim; }
+}
+
+// boton: marcar entregado
+.btn {
+  background: #3a2708;
+  border: 1px solid $line;
+  color: $amber;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  cursor: pointer;
+
+  &:hover {
+    background: #4a3308;
+    text-shadow: 0 0 5px rgba(255, 176, 0, .6);
+  }
+}
