@@ -1,0 +1,26 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .7);
+}
+.panel {
+  position: fixed;
+  //esto es para centrar la parte donde se 
+  // inserta el contenido
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, 92vw);
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.head { display: flex; justify-content: space-between; align-items: center; }
+.x {
+  background: none;
+  border: none;
+  color: var(--panel);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.content { padding: 12px; }

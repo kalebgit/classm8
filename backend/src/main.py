@@ -1,14 +1,24 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from src import models  # noqa: F401  (registra todos los modelos en Base.metadata)
+from src.analysis.router import course_analysis_router
+from src.analysis.router import router as analysis_router
+from src.categories.router import course_categories_router
+from src.categories.router import router as categories_router
 from src.config import settings
-from src.courses import router as courses_router
-from src.exceptions import NotFoundError, ConflictError
+from src.courses.router import router as courses_router
+from src.deliverables.router import router as deliverables_router
+from src.exceptions import ConflictError, NotFoundError
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
-
-app.include_router(router=courses_router, prefix=settings.API_V1_PREFIX)
+app.include_router(courses_router, prefix=settings.API_V1_PREFIX)
+app.include_router(course_categories_router, prefix=settings.API_V1_PREFIX)
+app.include_router(categories_router, prefix=settings.API_V1_PREFIX)
+app.include_router(deliverables_router, prefix=settings.API_V1_PREFIX)
+app.include_router(course_analysis_router, prefix=settings.API_V1_PREFIX)
+app.include_router(analysis_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/health")
