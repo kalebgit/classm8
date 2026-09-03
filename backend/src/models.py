@@ -10,8 +10,9 @@ Importa aquí TODAS las clases de modelo para que:
 No define nada nuevo, solo reexporta.
 """
 
+from src.auth.models import User
 from src.categories.models import Category
 from src.courses.models import Course
 from src.deliverables.models import Deliverable
 
-__all__ = ["Category", "Course", "Deliverable"]
+__all__ = ["Category", "Course", "Deliverable", "User"]

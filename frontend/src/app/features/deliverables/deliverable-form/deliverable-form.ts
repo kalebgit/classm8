@@ -26,7 +26,6 @@ export class DeliverableForm {
     course_id: [0, Validators.min(1)],
     category_id: [0, Validators.min(1)],
     due_date: ['', Validators.required],
-    weight: [1, Validators.min(0)],
   });
 
   constructor() {
@@ -43,14 +42,14 @@ export class DeliverableForm {
 
   submit(): void {
     if (this.form.invalid) return;
-    const { name, category_id, due_date, weight } = this.form.getRawValue();
+    const { name, course_id, category_id, due_date } = this.form.getRawValue();
     this.deliverablesApi
       .create({
         name,
+        course_id,
         category_id,
         due_date: new Date(due_date).toISOString(),
         previous_phase_id: null,
-        weight,
       })
       .subscribe(() => this.saved.emit());
 }

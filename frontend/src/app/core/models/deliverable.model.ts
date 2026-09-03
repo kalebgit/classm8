@@ -3,7 +3,6 @@ export interface Deliverable {
   name: string;
   due_date: string;
   submitted_at: string | null;
-  weight: number;
   grade: number | null;
   course_id: number;
   course_name: string;
@@ -15,7 +14,7 @@ export interface Deliverable {
 export interface NewDeliverable {
   name: string;
   due_date: string;
-  weight: number;
+  course_id: number;
   category_id: number;
   previous_phase_id: number | null;
 }

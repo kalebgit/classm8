@@ -9,6 +9,8 @@ import { DeliverableForm } from '../deliverables/deliverable-form/deliverable-fo
 import { CourseForm } from '../courses/course-form/course-form';
 import { PixelGauge } from '../../shared/components/pixel-gauge/pixel-gauge';
 import { AnalysisPanel } from '../analysis/analysis-panel/analysis-panel';
+import { AuthService } from '../../core/api/auth.service';
+import { Router } from '@angular/router';
 
 type Modal = 'course' | 'deliverable' | 'analysis' | null;
 
@@ -21,6 +23,8 @@ type Modal = 'course' | 'deliverable' | 'analysis' | null;
 export class Home {
   private deliverablesApi = inject(DeliverablesService);
   private coursesApi = inject(CoursesService);
+  private router = inject(Router);
+  auth = inject(AuthService);
 
   pending = signal<Deliverable[]>([]);
   courses = signal<Course[]>([]);
@@ -47,6 +51,11 @@ export class Home {
   onSaved(): void {
     this.modal.set(null);
     this.reload();
+  }
+
+  async logout(): Promise<void> {
+    await this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }
 

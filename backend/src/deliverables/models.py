@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -22,12 +22,12 @@ class Deliverable(Base):
     # Fecha (con hora) en que se debe entregar. Guardar siempre en UTC.
     due_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     # Fecha (con hora) en que realmente se entregó. Null mientras no se entrega.
-    submitted_at: Mapped[Optional[datetime]] = mapped_column(
+    submitted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
 
     # Calificación obtenida: 0 - 100 (entero). Null mientras no se califica.
-    grade: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    grade: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     course_id: Mapped[int] = mapped_column(
         ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True
@@ -36,7 +36,7 @@ class Deliverable(Base):
         ForeignKey("categories.id", ondelete="CASCADE"), nullable=False, index=True
     )
     # Fase anterior de este entregable (auto-referencia). Null si es la primera.
-    previous_phase_id: Mapped[Optional[int]] = mapped_column(
+    previous_phase_id: Mapped[int | None] = mapped_column(
         ForeignKey("deliverables.id", ondelete="SET NULL"), nullable=True
     )
 
