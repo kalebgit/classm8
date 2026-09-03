@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
@@ -7,6 +8,7 @@ from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
     Integer,
+    Numeric,
     String,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -32,10 +34,10 @@ class Course(Base):
     )
 
     # --- ajustes de la pestaña Análisis (escala 0-10) ---
-    # Puntos extra (0-5, enteros) que se SUMAN a la calificación de la materia
-    # en décimos, antes de redondear.
-    extra_points: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default="0"
+    # Puntos extra (0.00 - 5.00, decimales) que se SUMAN tal cual a la
+    # calificación de la materia en escala 0-10, antes de redondear.
+    extra_points: Mapped[Decimal] = mapped_column(
+        Numeric(3, 2), nullable=False, server_default="0"
     )
     # ¿Se redondea la calificación final de la materia?
     rounding_enabled: Mapped[bool] = mapped_column(

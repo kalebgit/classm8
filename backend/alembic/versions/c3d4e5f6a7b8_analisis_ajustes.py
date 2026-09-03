@@ -27,7 +27,7 @@ def upgrade() -> None:
         "courses",
         sa.Column(
             "extra_points",
-            sa.Integer(),
+            sa.Numeric(precision=3, scale=2),
             nullable=False,
             server_default="0",
         ),

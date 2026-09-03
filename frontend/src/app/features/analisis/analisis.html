@@ -27,7 +27,7 @@
             <span class="sub">
               {{ r.analysis.evaluated_percentage }}% evaluado ·
               base {{ fmt2(r.base10) }}/10
-              @if (r.course.extra_points > 0) { · +{{ r.course.extra_points }} extra }
+              @if (r.course.extra_points > 0) { · +{{ fmt2(r.course.extra_points) }} extra }
               @if (r.course.rounding_enabled) { · {{ LABEL[r.course.rounding_method] }} }
               → <strong>{{ fmt2(r.final) }}</strong>
             </span>
@@ -37,11 +37,12 @@
         <!-- controles de la fila -->
         <div class="ctrls">
           <label>
-            Extra
+            Puntos extra
             <input
               type="number"
               min="0"
               max="5"
+              step="0.5"
               [value]="r.course.extra_points"
               (change)="setExtra(r, $any($event.target).value)"
             />
@@ -84,7 +85,7 @@
             </div>
             @if (r.course.extra_points > 0) {
               <div class="cat calc">
-                <span>+ puntos extra ({{ r.course.extra_points }})</span>
+                <span>+ puntos extra ({{ fmt2(r.course.extra_points) }})</span>
                 <span>{{ fmt2(r.withExtra) }}</span>
               </div>
             }

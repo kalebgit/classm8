@@ -72,9 +72,12 @@ export class Analisis {
       .map((a) => {
         const course = byId.get(a.course_id)!;
         const base10 = toTen(a.current_grade); // 0..10, 2 dec
-        // puntos extra: enteros 0..5 que se suman en DÉCIMOS a la calif sobre 10
-        // (p. ej. 3 puntos extra -> +0.3). Así "puntos extra" no rompe la escala.
-        const withExtra = Math.min(10, Math.round((base10 + (course?.extra_points ?? 0) / 10) * 100) / 100);
+        // puntos extra: decimal 0..5 (p. ej. 3.5) que se SUMA tal cual a la
+        // calif en escala 0..10 (capado a 10).
+        const withExtra = Math.min(
+          10,
+          Math.round((base10 + Number(course?.extra_points ?? 0)) * 100) / 100,
+        );
         const final = course?.rounding_enabled
           ? roundTen(withExtra, (course.rounding_method as RoundingMethod) ?? 'half_up')
           : withExtra;
@@ -104,9 +107,10 @@ export class Analisis {
   }
 
   setExtra(row: Row, value: string): void {
-    let n = Math.round(Number(value));
+    let n = Number(value);
     if (Number.isNaN(n)) n = 0;
-    n = Math.max(0, Math.min(5, n));
+    // 0..5 con 2 decimales
+    n = Math.max(0, Math.min(5, Math.round(n * 100) / 100));
     this.patch(row.course.id, { extra_points: n });
   }
   toggleRounding(row: Row): void {

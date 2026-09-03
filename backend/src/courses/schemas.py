@@ -34,14 +34,16 @@ class CourseUpdate(BaseModel):
     # con los endpoints /categories.
     name: str | None = None
     # Ajustes de la pestaña Análisis:
-    extra_points: int | None = Field(default=None, ge=0, le=5)
+    # puntos extra: decimal 0.00 - 5.00 (p. ej. 3.5), se suman tal cual a la
+    # calificación en escala 0-10.
+    extra_points: float | None = Field(default=None, ge=0, le=5)
     rounding_enabled: bool | None = None
     rounding_method: RoundingMethod | None = None
 
 
 class CourseOut(CourseBase):
     id: int
-    extra_points: int = 0
+    extra_points: float = 0
     rounding_enabled: bool = True
     rounding_method: RoundingMethod = "half_up"
     model_config = ConfigDict(from_attributes=True)
