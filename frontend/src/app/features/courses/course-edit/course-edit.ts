@@ -15,7 +15,10 @@ export class CourseEdit implements OnInit {
   private api = inject(CoursesService);
 
   course = input.required<Course>();
-  saved = output<void>();
+  /** Emite cuando hubo un cambio persistido; el padre refresca la lista. */
+  changed = output<void>();
+  /** Emite cuando el usuario terminó (guardó el nombre o cerró); el padre cierra el modal. */
+  done = output<string>(); // string = mensaje para el notice global
   deleted = output<void>();
 
   name = signal('');
@@ -45,7 +48,7 @@ export class CourseEdit implements OnInit {
     return this.categories().reduce((s, c) => s + Number(c.percentage || 0), 0);
   }
 
-  /** "Guardar" del modal: aplica el nombre si cambió y confirma. */
+  /** "Guardar" del modal: aplica el nombre si cambió y CIERRA el modal. */
   save(): void {
     const n = this.name().trim();
     if (!n) {
@@ -53,15 +56,16 @@ export class CourseEdit implements OnInit {
       return;
     }
     if (n === this.course().name) {
-      this.status.set({ kind: 'ok', text: 'Sin cambios en el nombre.' });
+      // Nada que guardar en el nombre, pero puede que haya editado categorías.
+      this.done.emit('Materia guardada.');
       return;
     }
     this.busy.set(true);
     this.api.update(this.course().id, { name: n }).subscribe({
       next: () => {
         this.busy.set(false);
-        this.status.set({ kind: 'ok', text: 'Materia actualizada.' });
-        this.saved.emit();
+        this.changed.emit();
+        this.done.emit('Materia actualizada.');
       },
       error: this.err('No se pudo actualizar la materia.'),
     });
@@ -71,6 +75,7 @@ export class CourseEdit implements OnInit {
     this.api.updateCategory(c.id, { name: c.name, percentage: c.percentage }).subscribe({
       next: () => {
         this.status.set({ kind: 'ok', text: `Categoría "${c.name}" guardada.` });
+        this.changed.emit();
         this.reloadCategories();
       },
       error: this.err('No se pudo guardar la categoría.'),
@@ -87,6 +92,7 @@ export class CourseEdit implements OnInit {
       next: () => {
         this.newCat.set({ name: '', percentage: 0 });
         this.status.set({ kind: 'ok', text: 'Categoría agregada.' });
+        this.changed.emit();
         this.reloadCategories();
       },
       error: this.err('No se pudo agregar la categoría.'),
@@ -98,6 +104,7 @@ export class CourseEdit implements OnInit {
     this.api.removeCategory(c.id).subscribe({
       next: () => {
         this.status.set({ kind: 'ok', text: `Categoría "${c.name}" eliminada.` });
+        this.changed.emit();
         this.reloadCategories();
       },
       error: this.err('No se pudo eliminar la categoría.'),

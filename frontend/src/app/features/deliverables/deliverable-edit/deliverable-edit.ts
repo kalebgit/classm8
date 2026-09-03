@@ -24,7 +24,8 @@ export class DeliverableEdit implements OnInit {
   private deliverablesApi = inject(DeliverablesService);
 
   deliverable = input.required<Deliverable>();
-  saved = output<void>();
+  /** Guardó con éxito: el padre cierra el modal y muestra el mensaje. */
+  done = output<string>();
   deleted = output<void>();
 
   categories = signal<Category[]>([]);
@@ -79,8 +80,7 @@ export class DeliverableEdit implements OnInit {
       .subscribe({
         next: () => {
           this.busy.set(false);
-          this.status.set({ kind: 'ok', text: 'Entregable actualizado.' });
-          this.saved.emit();
+          this.done.emit('Entregable actualizado.');
         },
         error: (e: unknown) => {
           this.busy.set(false);

@@ -112,9 +112,17 @@ export class Home implements OnInit {
     this.reload();
   }
 
-  /** Un formulario de EDITAR guardó algo: refrescar SIN cerrar (el usuario
-      puede seguir editando; el modal muestra su propia confirmación). */
+  /** Un modal de edición hizo un cambio parcial (ej. una categoría): refrescar
+      los datos SIN cerrar, el usuario sigue editando. */
   onEditedRefresh(): void {
+    this.loadCourses();
+    this.reload();
+  }
+
+  /** Un modal de edición terminó (guardó y cerró): cerrar, avisar, refrescar. */
+  onEditDone(msg: string): void {
+    this.modal.set(null);
+    this.notice.set(msg);
     this.loadCourses();
     this.reload();
   }

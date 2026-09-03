@@ -55,7 +55,7 @@
   <app-modal-shell title="Editar entregable" (close)="modal.set(null)">
     <app-deliverable-edit
       [deliverable]="d"
-      (saved)="onEditedRefresh()"
+      (done)="onEditDone($event)"
       (deleted)="onDeleted()"
     />
   </app-modal-shell>
@@ -65,7 +65,8 @@
   <app-modal-shell title="Editar materia" (close)="modal.set(null)">
     <app-course-edit
       [course]="c"
-      (saved)="onEditedRefresh()"
+      (changed)="onEditedRefresh()"
+      (done)="onEditDone($event)"
       (deleted)="onDeleted()"
     />
   </app-modal-shell>
