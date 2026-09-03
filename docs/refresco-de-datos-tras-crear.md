@@ -84,5 +84,14 @@ correr `loadCourses()`.
 
 Cualquier acción que modifique materias o entregables en el backend debe, al
 volver, refrescar **todas** las señales derivadas de eso, no solo la más
-obvia. Hoy son dos (`courses`, `pending`); si se agrega una tercera (p. ej.
-"entregados"), el handler de guardado tiene que incluirla.
+obvia. Hoy son dos (`courses`, `deliverables`); si se agrega una tercera, el
+handler de guardado tiene que incluirla.
+
+## Actualización
+
+Cuando se agregaron editar/eliminar de materias y entregables, todos los
+handlers (`onSaved`, `removeCourse`, `removeDeliverable`, el `(deleted)` de
+los modales de edición) llaman a `loadCourses()` + `reload()`. La lista de
+abajo pasó a mostrar **todos** los entregables (no solo pendientes), porque
+para editar la calificación de uno ya entregado hay que poder verlo. El
+contador de "pendientes" es ahora un `computed()` sobre `deliverables()`.

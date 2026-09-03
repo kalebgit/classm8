@@ -18,12 +18,30 @@ export class CoursesService {
         return this.http.post<CourseWithCategories>(this.base, body)
     }
 
+    update(id: number, body: { name?: string }): Observable<Course>{
+        return this.http.patch<Course>(`${this.base}/${id}`, body)
+    }
+
+    remove(id: number): Observable<void>{
+        return this.http.delete<void>(`${this.base}/${id}`)
+    }
+
     categories(courseId: number): Observable<Category[]>{
         return this.http.get<Category[]>(`${this.base}/${courseId}/categories`)
     }
 
     addCategory(courseId: number, body: NewCategory): Observable<Category>{
         return this.http.post<Category>(`${this.base}/${courseId}/categories`, body)
+    }
+
+    updateCategory(categoryId: number, body: Partial<NewCategory>): Observable<Category>{
+        return this.http.patch<Category>(
+            `${environment.apiUrl}/categories/${categoryId}`, body,
+        )
+    }
+
+    removeCategory(categoryId: number): Observable<void>{
+        return this.http.delete<void>(`${environment.apiUrl}/categories/${categoryId}`)
     }
 
 }

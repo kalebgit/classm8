@@ -64,12 +64,16 @@ Response:
 
 - `categories` es **opcional**; si se omite o va vacío, se crea la materia sin categorías.
 - `percentage` es un **entero** `0–100` por categoría. Un decimal (`12.5`) se rechaza con `422`.
-- **La suma de las categorías NO tiene que ser 100.** Algunos criterios de
-  evaluación reparten más de 100 (categorías con puntos extra). Se acepta
-  cualquier suma; el análisis usa los porcentajes tal cual.
+- **La suma de las categorías debe ser `>= 100`.** Se permite pasar de 100
+  (criterios con puntos extra), pero no quedarse corto: una suma `< 100` se
+  rechaza con `422`. El análisis usa los porcentajes tal cual.
 
-> ⚠️ **Cambio vs. spec original:** se eliminó la validación `sum == 100`
-> (antes respondía `422`). Ahora cualquier combinación de categorías es válida.
+> ⚠️ **Cambio vs. spec original:** la validación pasó de `sum == 100` a
+> `sum >= 100`.
+
+**`PATCH /courses/{id}`** → `200`  → `{ "id": 1, "name": "..." }`
+Body parcial: solo `name`. Las categorías se editan con los endpoints
+`/courses/{id}/categories` y `/categories/{id}`. `404` si no existe.
 
 **`GET /courses/{id}`** → `200`  `{ "id": 1, "name": "Cálculo II" }`
 (no incluye `categories`; para eso usar `GET /courses/{id}/categories`).
@@ -154,7 +158,8 @@ Un valor de `status` distinto a esos tres → `422`.
 ]
 ```
 
-- `grade` es un **entero** `0–100` o `null`.
+- `grade` es un **entero** `>= 0` o `null`. **No tiene tope superior**: hay
+  criterios con puntos extra que permiten pasar de 100.
 - `course_name` y `category_name` se resuelven con un **único** `JOIN` (una sola query),
   para que el front no haga llamadas extra.
 - Nota de semántica: un entregable calificado pero sin `submitted_at` cuenta como
@@ -287,8 +292,8 @@ reintroduzca el campo. El resto del cálculo y la API no cambian.
 | 1 | Validación → `400` | Validación → `422` (idiomático FastAPI). No hay `400` en ninguna ruta. |
 | 2 | `deliverable.weight` (default 1) en modelo, request y response | Campo **eliminado** por completo. |
 | 3 | `analysis.projected_grade` en la respuesta | Campo **eliminado**; no se calcula. |
-| 4 | `deliverable.grade` como número (ej. `92`) | Entero `0–100` (rechaza decimales). |
-| 5 | `category.percentage` como número (ej. `40`) | Entero `0–100` (rechaza decimales). |
+| 4 | `deliverable.grade` como número (ej. `92`) | Entero `>= 0` (rechaza decimales). **Sin tope superior** (puntos extra). |
+| 5 | `category.percentage` como número (ej. `40`) | Entero `0–100` (rechaza decimales). La **suma** por materia debe ser `>= 100`. |
 | 6 | Rutas de colección con `/` final (`GET /courses/`) | Sin barra final (`GET /courses`). |
 | 7 | `GET /deliverables/{id}` no listado | Añadido por consistencia CRUD. |
 | 8 | `409` mencionado para conflictos | Handler existe pero ninguna ruta lo dispara aún. |

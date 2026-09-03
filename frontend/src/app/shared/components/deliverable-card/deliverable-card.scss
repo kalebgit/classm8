@@ -13,7 +13,7 @@ $ok:    #5fbf6a;
   color: $amber;
 }
 
-// franja superior solida con la categoria
+// franja superior solida con la categoria + materia
 .head {
   background: $amber;
   color: $panel;
@@ -21,6 +21,11 @@ $ok:    #5fbf6a;
   font-size: 15px;
   letter-spacing: 1px;
   padding: 4px 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+
+  .course { opacity: .75; font-size: 13px; }
 }
 
 .body {
@@ -57,7 +62,14 @@ $ok:    #5fbf6a;
   &.delivered { color: $dim; }
 }
 
-// boton: marcar entregado
+// fila de acciones: entregar / editar / eliminar
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
 .btn {
   background: #3a2708;
   border: 1px solid $line;
@@ -71,5 +83,11 @@ $ok:    #5fbf6a;
   &:hover {
     background: #4a3308;
     text-shadow: 0 0 5px rgba(255, 176, 0, .6);
+  }
+
+  &.danger {
+    color: $due;
+    border-color: $due;
+    &:hover { text-shadow: 0 0 5px rgba(255, 107, 71, .6); }
   }
 }

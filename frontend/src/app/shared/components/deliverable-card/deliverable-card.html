@@ -1,5 +1,8 @@
 <div class="ticket" [class.overdue]="overdue">
-  <div class="head">{{ deliverable().category_name }}</div>
+  <div class="head">
+    <span>{{ deliverable().category_name }}</span>
+    <span class="course">{{ deliverable().course_name }}</span>
+  </div>
 
   <div class="body">
     <div class="name">{{ deliverable().name }}</div>
@@ -11,9 +14,15 @@
         <span class="badge grade">Calif: {{ deliverable().grade }}</span>
       } @else if (deliverable().submitted_at) {
         <span class="badge delivered">Entregado, sin calificar</span>
-      } @else {
+      }
+    </div>
+
+    <div class="actions">
+      @if (!deliverable().submitted_at) {
         <button class="btn" (click)="submit.emit(deliverable().id)">Marcar entregado</button>
       }
+      <button class="btn" (click)="edit.emit(deliverable())">Editar</button>
+      <button class="btn danger" (click)="remove.emit(deliverable().id)">Eliminar</button>
     </div>
   </div>
 </div>

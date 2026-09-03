@@ -10,7 +10,9 @@ import { Deliverable } from '../../../core/models/deliverable.model';
 })
 export class DeliverableCard {
   deliverable = input.required<Deliverable>();
-  submit = output<number>();
+  submit = output<number>(); // marcar entregado
+  edit = output<Deliverable>(); // abrir modal de edición
+  remove = output<number>(); // eliminar
 
   get overdue(): boolean {
     const d = this.deliverable();

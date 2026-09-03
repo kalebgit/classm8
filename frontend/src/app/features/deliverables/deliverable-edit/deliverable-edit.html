@@ -1,0 +1,30 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>Nombre</label>
+  <input formControlName="name" autocomplete="off" />
+
+  <label>Categoría</label>
+  <select formControlName="category_id">
+    <option [ngValue]="0">—</option>
+    @for (c of categories(); track c.id) {
+      <option [ngValue]="c.id">{{ c.name }} ({{ c.percentage }}%)</option>
+    }
+  </select>
+
+  <label>Fecha de entrega</label>
+  <input type="datetime-local" formControlName="due_date" />
+
+  <label class="check">
+    <input type="checkbox" formControlName="submitted" />
+    Entregado
+  </label>
+
+  @if (gradeEnabled) {
+    <label>Calificación (opcional, puede pasar de 100)</label>
+    <input type="number" formControlName="grade" min="0" />
+  }
+
+  <div class="row-actions">
+    <button class="btn" type="submit">Guardar</button>
+    <button class="btn danger" type="button" (click)="onDelete()">Eliminar</button>
+  </div>
+</form>

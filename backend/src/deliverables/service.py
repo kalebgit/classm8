@@ -105,7 +105,13 @@ def update_deliverable(
     deliverable = db.get(models.Deliverable, id)
     if deliverable is None or deliverable.user_id != user_id:
         raise NotFoundError(f"Entregable con id {id} no encontrado")
-    for field, value in deliverable_in.model_dump(exclude_unset=True).items():
+    changes = deliverable_in.model_dump(exclude_unset=True)
+    # Si se cambia la categoría, que siga siendo de la misma materia.
+    if "category_id" in changes and changes["category_id"] is not None:
+        _validate_refs(
+            db, deliverable.course_id, changes["category_id"], user_id
+        )
+    for field, value in changes.items():
         setattr(deliverable, field, value)
     db.commit()
     return get_deliverable(db, id, user_id)

@@ -36,6 +36,17 @@ def create_course(
     return course
 
 
+def update_course(
+    db: Session, id: int, course_in: schemas.CourseUpdate, user_id: int
+) -> models.Course:
+    course = get_course(db, id, user_id)
+    for field, value in course_in.model_dump(exclude_unset=True).items():
+        setattr(course, field, value)
+    db.commit()
+    db.refresh(course)
+    return course
+
+
 def delete_course(db: Session, id: int, user_id: int) -> None:
     course = get_course(db, id, user_id)
     db.delete(course)  # cascada -> categorías y entregables

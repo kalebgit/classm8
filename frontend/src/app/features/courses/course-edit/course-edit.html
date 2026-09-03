@@ -1,0 +1,32 @@
+<label>Nombre</label>
+<div class="name-row">
+  <input [(ngModel)]="name" autocomplete="off" />
+  <button class="btn" type="button" [disabled]="busy()" (click)="saveName()">Guardar</button>
+</div>
+
+<label>Categorías</label>
+@for (c of categories(); track c.id) {
+  <div class="cat-row">
+    <input [(ngModel)]="c.name" autocomplete="off" />
+    <input type="number" [(ngModel)]="c.percentage" min="0" max="100" />
+    <button class="btn" type="button" (click)="saveCategory(c)" title="Guardar">✓</button>
+    <button class="btn danger" type="button" (click)="removeCategory(c)" title="Eliminar">×</button>
+  </div>
+} @empty {
+  <p class="dim">Sin categorías.</p>
+}
+
+<div class="cat-row new">
+  <input [ngModel]="newCat().name" (ngModelChange)="newCat.set({ name: $event, percentage: newCat().percentage })"
+         placeholder="Nueva categoría" autocomplete="off" />
+  <input type="number" min="0" max="100"
+         [ngModel]="newCat().percentage" (ngModelChange)="newCat.set({ name: newCat().name, percentage: $event })" />
+  <button class="btn" type="button" (click)="addCategory()" title="Agregar">+</button>
+  <span></span>
+</div>
+
+<p class="total" [class.bad]="total > 100">total: {{ total }}</p>
+
+<div class="foot">
+  <button class="btn danger" type="button" (click)="onDelete()">Eliminar materia</button>
+</div>

@@ -1,0 +1,17 @@
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 2px;
+}
+.check input { width: auto; }
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.btn.danger {
+  color: var(--due);
+  border-color: var(--due);
+}

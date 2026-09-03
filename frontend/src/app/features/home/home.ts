@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { DeliverableCard } from '../../shared/components/deliverable-card/deliverable-card';
 import { DeliverablesService } from '../../core/api/deliverables.service';
 import { CoursesService } from '../../core/api/courses.service';
@@ -6,17 +6,30 @@ import { Deliverable } from '../../core/models/deliverable.model';
 import { Course } from '../../core/models/course.model';
 import { ModalShell } from '../../shared/components/modal-shell/modal-shell';
 import { DeliverableForm } from '../deliverables/deliverable-form/deliverable-form';
+import { DeliverableEdit } from '../deliverables/deliverable-edit/deliverable-edit';
 import { CourseForm } from '../courses/course-form/course-form';
+import { CourseEdit } from '../courses/course-edit/course-edit';
+import { CourseList } from '../courses/course-list/course-list';
 import { AnalysisPanel } from '../analysis/analysis-panel/analysis-panel';
 import { ClassroomImport } from '../classroom/classroom-import/classroom-import';
 import { AuthService } from '../../core/api/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
-type Modal = 'course' | 'deliverable' | 'analysis' | 'classroom' | null;
+type Modal = 'course' | 'deliverable' | 'analysis' | 'classroom' | 'course-edit' | 'deliverable-edit' | null;
 
 @Component({
   selector: 'app-home',
-  imports: [DeliverableCard, ModalShell, DeliverableForm, CourseForm, AnalysisPanel, ClassroomImport],
+  imports: [
+    DeliverableCard,
+    ModalShell,
+    DeliverableForm,
+    DeliverableEdit,
+    CourseForm,
+    CourseEdit,
+    CourseList,
+    AnalysisPanel,
+    ClassroomImport,
+  ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -27,19 +40,19 @@ export class Home implements OnInit {
   private route = inject(ActivatedRoute);
   auth = inject(AuthService);
 
-  pending = signal<Deliverable[]>([]);
+  deliverables = signal<Deliverable[]>([]);
+  pendingCount = computed(() => this.deliverables().filter((d) => !d.submitted_at).length);
   courses = signal<Course[]>([]);
   modal = signal<Modal>(null);
-  /** aviso corto tras volver de conectar Classroom */
+  /** entregable / materia que se está editando en su modal */
+  editingDeliverable = signal<Deliverable | null>(null);
+  editingCourse = signal<Course | null>(null);
   notice = signal<string | null>(null);
 
   ngOnInit(): void {
     this.reload();
     this.loadCourses();
 
-    // Volvimos del consentimiento de Classroom (?classroom=connected|error).
-    // El botón está oculto por ahora, pero si alguien llega con el flag lo
-    // limpiamos igual.
     const flag = this.route.snapshot.queryParamMap.get('classroom');
     if (flag === 'connected') {
       this.auth.refresh();
@@ -54,8 +67,12 @@ export class Home implements OnInit {
   }
 
   reload(): void {
-    this.deliverablesApi.list({ status: 'pending' }).subscribe((list) =>
-      this.pending.set([...list].sort((a, b) => a.due_date.localeCompare(b.due_date))),
+    // Todos los entregables (no solo pendientes): la lista de abajo también
+    // muestra entregados y calificados para poder editarlos.
+    this.deliverablesApi.list().subscribe((list) =>
+      this.deliverables.set(
+        [...list].sort((a, b) => a.due_date.localeCompare(b.due_date)),
+      ),
     );
   }
 
@@ -65,10 +82,31 @@ export class Home implements OnInit {
       .subscribe(() => this.reload());
   }
 
+  removeDeliverable(id: number): void {
+    if (!confirm('¿Eliminar este entregable?')) return;
+    this.deliverablesApi.remove(id).subscribe(() => this.reload());
+  }
+
+  openDeliverableEdit(d: Deliverable): void {
+    this.editingDeliverable.set(d);
+    this.modal.set('deliverable-edit');
+  }
+
+  openCourseEdit(c: Course): void {
+    this.editingCourse.set(c);
+    this.modal.set('course-edit');
+  }
+
+  removeCourse(id: number): void {
+    if (!confirm('¿Eliminar la materia y todos sus entregables?')) return;
+    this.coursesApi.remove(id).subscribe(() => {
+      this.loadCourses();
+      this.reload();
+    });
+  }
+
   onSaved(): void {
     this.modal.set(null);
-    // Recargar AMBOS: una materia nueva debe aparecer en "Analizar" y en el
-    // form de entregables; un entregable nuevo, en la lista de pendientes.
     this.loadCourses();
     this.reload();
   }
@@ -85,4 +123,3 @@ export class Home implements OnInit {
     this.router.navigate(['/login']);
   }
 }
-

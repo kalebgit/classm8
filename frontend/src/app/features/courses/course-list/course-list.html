@@ -1,1 +1,8 @@
-<p>course-list works!</p>
+@for (c of courses(); track c.id) {
+  <div class="row">
+    <button class="name" (click)="edit.emit(c)" title="Editar materia">{{ c.name }}</button>
+    <button class="btn danger" (click)="remove.emit(c.id)" title="Eliminar materia">×</button>
+  </div>
+} @empty {
+  <p class="empty">Sin materias.</p>
+}

@@ -18,10 +18,28 @@
   <div class="notice" (click)="notice.set(null)">{{ n }}</div>
 }
 
-<div class="head">PENDIENTES — {{ pending().length }}</div>
+<div class="head">ENTREGABLES — {{ pendingCount() }} pendientes / {{ deliverables().length }} total</div>
+
+@for (d of deliverables(); track d.id) {
+  <app-deliverable-card
+    [deliverable]="d"
+    (submit)="markSubmitted($event)"
+    (edit)="openDeliverableEdit($event)"
+    (remove)="removeDeliverable($event)"
+  />
+} @empty {
+  <p class="empty">Sin entregables.</p>
+}
+
+<div class="head">MATERIAS — {{ courses().length }}</div>
+
+<app-course-list
+  [courses]="courses()"
+  (edit)="openCourseEdit($event)"
+  (remove)="removeCourse($event)"
+/>
 
 @if (modal() === 'course') {
-    <!--TODO: que pasaria si no estuviese el title que en codigo dice required?-->
   <app-modal-shell title="Nueva materia" (close)="modal.set(null)">
     <app-course-form (saved)="onSaved()" />
   </app-modal-shell>
@@ -32,6 +50,19 @@
     <app-deliverable-form [courses]="courses()" (saved)="onSaved()" />
   </app-modal-shell>
 }
+
+@if (modal() === 'deliverable-edit' && editingDeliverable(); as d) {
+  <app-modal-shell title="Editar entregable" (close)="modal.set(null)">
+    <app-deliverable-edit [deliverable]="d" (saved)="onSaved()" (deleted)="onSaved()" />
+  </app-modal-shell>
+}
+
+@if (modal() === 'course-edit' && editingCourse(); as c) {
+  <app-modal-shell title="Editar materia" (close)="modal.set(null)">
+    <app-course-edit [course]="c" (saved)="onSaved()" (deleted)="onSaved()" />
+  </app-modal-shell>
+}
+
 @if (modal() === 'analysis') {
   <app-modal-shell title="Análisis" (close)="modal.set(null)">
     <app-analysis-panel [courses]="courses()" />
@@ -42,14 +73,3 @@
     <app-classroom-import [courses]="courses()" (imported)="onImported()" />
   </app-modal-shell>
 }
-
-
-<!--recordamos que para llamar signals se pone en notacion de funcion-->
-@for (d of pending(); track d.id) {
-  <app-deliverable-card [deliverable]="d" (submit)="markSubmitted($event)" />
-} 
-<!--esta notacion es cuando no hay nada en el for-->
-@empty {
-  <p class="empty">Sin pendientes.</p>
-}
-

@@ -1,0 +1,32 @@
+.name-row {
+  display: flex;
+  gap: 6px;
+}
+.name-row input { flex: 1; }
+
+.cat-row {
+  display: grid;
+  grid-template-columns: 1fr 64px 32px 32px;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.cat-row.new { margin-top: 8px; }
+
+.total {
+  font-size: 12px;
+  margin: 8px 0;
+}
+.total.bad { color: var(--due); }
+
+.dim { color: var(--dim); font-size: 13px; }
+
+.foot {
+  margin-top: 12px;
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+}
+
+.btn.danger {
+  color: var(--due);
+  border-color: var(--due);
+}

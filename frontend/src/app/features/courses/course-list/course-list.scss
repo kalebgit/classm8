@@ -1,0 +1,35 @@
+.row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin: 6px 10px;
+}
+.row .name {
+  flex: 1;
+  text-align: left;
+  background: #3a2708;
+  border: 1px solid var(--line);
+  color: var(--amber);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  padding: 8px 10px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.row .name:hover {
+  background: #4a3308;
+  text-shadow: 0 0 5px rgba(255, 176, 0, 0.6);
+}
+.row .btn.danger {
+  background: #3a2708;
+  border: 1px solid var(--due);
+  color: var(--due);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+.empty {
+  padding: 12px;
+  color: var(--dim);
+}
