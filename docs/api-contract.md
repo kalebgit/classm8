@@ -63,10 +63,13 @@ Response:
 ```
 
 - `categories` es **opcional**; si se omite o va vacío, se crea la materia sin categorías.
-- Validación: si hay categorías, `sum(categories.percentage) == 100`; si no, **`422`**.
-- `percentage` es un **entero** `0–100`. Un decimal (`12.5`) se rechaza con `422`.
+- `percentage` es un **entero** `0–100` por categoría. Un decimal (`12.5`) se rechaza con `422`.
+- **La suma de las categorías NO tiene que ser 100.** Algunos criterios de
+  evaluación reparten más de 100 (categorías con puntos extra). Se acepta
+  cualquier suma; el análisis usa los porcentajes tal cual.
 
-> ⚠️ **Cambio vs. spec original:** la suma inválida responde `422` en vez de `400`.
+> ⚠️ **Cambio vs. spec original:** se eliminó la validación `sum == 100`
+> (antes respondía `422`). Ahora cualquier combinación de categorías es válida.
 
 **`GET /courses/{id}`** → `200`  `{ "id": 1, "name": "Cálculo II" }`
 (no incluye `categories`; para eso usar `GET /courses/{id}/categories`).
@@ -99,9 +102,9 @@ Response:
 { "id": 14, "name": "Quizzes", "percentage": 5, "course_id": 1 }
 ```
 
-- `percentage` entero `0–100`.
-- **No** se revalida que el total de la materia siga sumando 100 al agregar/editar
-  categorías sueltas (esa validación solo corre en `POST /courses`).
+- `percentage` entero `0–100` por categoría.
+- No hay validación sobre el total de la materia: la suma de categorías puede
+  ser cualquier valor.
 - `404` si la materia no existe.
 
 **`PATCH /categories/{id}`** → `200` — body parcial.

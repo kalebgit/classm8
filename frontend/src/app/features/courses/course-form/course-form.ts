@@ -43,9 +43,10 @@ export class CourseForm {
   }
 
   submit(): void {
-    // para un getter no es necesario poner parentesis como funcion
-    if (this.form.invalid || this.total !== 100) return;
-    //como getRawValue devuelve un diccionario debe coincidir 
+    // Ya no se exige total === 100: algunos criterios reparten más de 100
+    // (categorías con puntos extra). Solo se validan los campos del form.
+    if (this.form.invalid) return;
+    //como getRawValue devuelve un diccionario debe coincidir
     //para los endpoints de la api
     this.api.create(this.form.getRawValue()).subscribe(() => this.saved.emit());
   }

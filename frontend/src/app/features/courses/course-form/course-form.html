@@ -2,7 +2,7 @@
   <label>Nombre</label>
   <input formControlName="name" autocomplete="off" />
 
-  <label>Categorías (deben sumar 100)</label>
+  <label>Categorías</label>
   <div formArrayName="categories">
     @for (c of categories.controls; track $index) {
       <div class="row" [formGroupName]="$index">
@@ -15,7 +15,7 @@
 
   <div class="foot">
     <button class="btn" type="button" (click)="addCategory()">+ categoría</button>
-    <span [class.bad]="total !== 100">total: {{ total }}</span>
+    <span [class.bad]="total > 100">total: {{ total }}</span>
   </div>
 
   <button class="btn" type="submit">Guardar</button>

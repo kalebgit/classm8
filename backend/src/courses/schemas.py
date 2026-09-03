@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.categories.schemas import CategoryCreate, CategoryOut
 
@@ -9,17 +9,9 @@ class CourseBase(BaseModel):
 
 class CourseCreate(CourseBase):
     # Las categorías van anidadas para crear la materia completa en una llamada.
+    # NO se exige que sumen 100: algunos criterios de evaluación reparten más de
+    # 100 (categorías con puntos extra). Cada porcentaje sigue siendo 0-100.
     categories: list[CategoryCreate] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def _percentages_sum_100(self) -> CourseCreate:
-        if self.categories:
-            total = sum(c.percentage for c in self.categories)
-            if total != 100:
-                raise ValueError(
-                    f"La suma de porcentajes de las categorías debe ser 100 (es {total})"
-                )
-        return self
 
 
 class CourseOut(CourseBase):
