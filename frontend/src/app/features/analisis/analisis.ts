@@ -30,7 +30,6 @@ interface Row {
   imports: [FormsModule, VisorGauge],
   templateUrl: './analisis.html',
   styleUrl: './analisis.scss',
-  host: { class: 'analisis-host' },
 })
 export class Analisis {
   private http = inject(HttpClient);

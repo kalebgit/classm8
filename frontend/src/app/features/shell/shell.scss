@@ -12,12 +12,12 @@
 .section {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
 }
 .section > * {
-  flex: 1;
   min-height: 0;
 }
 
