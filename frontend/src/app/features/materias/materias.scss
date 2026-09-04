@@ -1,1 +1,5 @@
-:host { display: block; }
+:host {
+  display: block;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
