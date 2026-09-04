@@ -1,3 +1,8 @@
+:host.app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
 .bar {
   display: flex;
   flex-wrap: wrap;
@@ -7,10 +12,17 @@
   padding: 6px 12px;
   border-bottom: 1px solid var(--line);
   background: var(--panel);
+  flex: none;
 }
 .logo {
   font-family: 'VT323', monospace;
   font-size: 20px;
   letter-spacing: 2px;
   min-width: 0;
+}
+.outlet-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }

@@ -57,17 +57,19 @@
   <button class="btn" type="button" (click)="clearFilters()">Limpiar</button>
 </section>
 
-@for (d of view(); track d.id) {
-  <app-deliverable-card
-    [deliverable]="d"
-    (submit)="markSubmitted($event)"
-    (grade)="openGrade($event)"
-    (edit)="openEdit($event)"
-    (remove)="removeDeliverable($event)"
-  />
-} @empty {
-  <p class="empty">Nada coincide con los filtros.</p>
-}
+<section class="list">
+  @for (d of view(); track d.id) {
+    <app-deliverable-card
+      [deliverable]="d"
+      (submit)="markSubmitted($event)"
+      (grade)="openGrade($event)"
+      (edit)="openEdit($event)"
+      (remove)="removeDeliverable($event)"
+    />
+  } @empty {
+    <p class="empty">Nada coincide con los filtros.</p>
+  }
+</section>
 
 @if (editing(); as d) {
   <app-modal-shell title="Editar entregable" (close)="editing.set(null)">

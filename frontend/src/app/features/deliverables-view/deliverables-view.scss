@@ -1,3 +1,17 @@
+:host.dview-host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* dejamos suficiente alto para el resto del shell (barra de cuenta, hint,
+     accesos de classroom, navbar) y forzamos scroll interno de la lista en
+     vez de que crezca la página completa */
+  flex: 1;
+}
+
+.head {
+  flex: none;
+}
+
 .filters {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -5,6 +19,7 @@
   padding: 10px;
   border-bottom: 1px dashed var(--line);
   align-items: end;
+  flex: none;
 }
 .filters label {
   display: flex;
@@ -23,6 +38,16 @@
 }
 
 .empty { padding: 12px; color: var(--dim); }
+
+.list {
+  flex: 1;
+  /* piso para que, aunque el resto del shell sea alto, queden visibles
+     al menos ~3 tarjetas antes de tener que scrollear */
+  min-height: 320px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
 
 app-deliverable-card {
   display: block;

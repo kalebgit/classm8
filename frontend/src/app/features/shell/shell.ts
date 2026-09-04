@@ -26,6 +26,7 @@ type Modal = 'course' | 'deliverable' | 'classroom' | null;
   imports: [RouterOutlet, NavBar, ModalShell, CourseForm, DeliverableForm, ClassroomImport],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
+  host: { class: 'shell-host' },
 })
 export class Shell implements OnInit {
   auth = inject(AuthService);

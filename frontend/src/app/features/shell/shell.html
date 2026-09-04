@@ -42,7 +42,9 @@
   <div class="notice" (click)="notice.set(null)">{{ n }}</div>
 }
 
-<router-outlet />
+<div class="section">
+  <router-outlet />
+</div>
 
 @if (modal() === 'course') {
   <app-modal-shell title="Nueva materia" (close)="modal.set(null)">

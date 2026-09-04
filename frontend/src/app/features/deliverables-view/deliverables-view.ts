@@ -19,6 +19,7 @@ type SortKey = 'due-asc' | 'due-desc' | 'grade-desc' | 'name';
   imports: [FormsModule, DeliverableCard, ModalShell, DeliverableEdit, GradeModal],
   templateUrl: './deliverables-view.html',
   styleUrl: './deliverables-view.scss',
+  host: { class: 'dview-host' },
 })
 export class DeliverablesView {
   private api = inject(DeliverablesService);
