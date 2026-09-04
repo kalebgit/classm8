@@ -41,9 +41,7 @@
 
 .list {
   flex: 1;
-  /* piso para que, aunque el resto del shell sea alto, queden visibles
-     al menos ~3 tarjetas antes de tener que scrollear */
-  min-height: 320px;
+  min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
