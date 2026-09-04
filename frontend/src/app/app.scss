@@ -23,6 +23,11 @@
 .outlet-area {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.outlet-area > * {
+  flex: 1;
+  min-height: 0;
 }
