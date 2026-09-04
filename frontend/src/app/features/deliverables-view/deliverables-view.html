@@ -1,61 +1,63 @@
-<div class="head">
-  {{ mode() === 'pending' ? 'NO ENTREGADOS' : 'ENTREGADOS' }} —
-  {{ view().length }} / {{ inModeCount() }}
+<div class="sticky-top">
+  <div class="head">
+    {{ mode() === 'pending' ? 'NO ENTREGADOS' : 'ENTREGADOS' }} —
+    {{ view().length }} / {{ inModeCount() }}
+  </div>
+
+  <section class="filters">
+    <label>
+      Estado
+      @if (mode() === 'pending') {
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="all">Todos (no entregados)</option>
+          <option value="overdue">Atrasados</option>
+          <option value="soon">Próximos 7 días</option>
+        </select>
+      } @else {
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="all">Todos (entregados)</option>
+          <option value="ungraded">Sin calificar</option>
+          <option value="graded">Calificados</option>
+        </select>
+      }
+    </label>
+
+    <label>
+      Materia
+      <select
+        [ngModel]="courseId()"
+        (ngModelChange)="courseId.set($event); onCourseChange()"
+      >
+        <option [ngValue]="0">Todas</option>
+        @for (c of courseOptions(); track c.id) {
+          <option [ngValue]="c.id">{{ c.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Criterio de evaluación
+      <select [ngModel]="categoryId()" (ngModelChange)="categoryId.set($event)">
+        <option [ngValue]="0">Todos</option>
+        @for (cat of categoryOptions(); track cat.id) {
+          <option [ngValue]="cat.id">{{ cat.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Ordenar
+      <select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+        <option value="due-asc">Fecha de entrega ↑</option>
+        <option value="due-desc">Fecha de entrega ↓</option>
+        <option value="grade-desc">Calificación ↓</option>
+        <option value="name">Nombre A–Z</option>
+      </select>
+    </label>
+
+    <button class="btn" type="button" (click)="clearFilters()">Limpiar</button>
+  </section>
 </div>
-
-<section class="filters">
-  <label>
-    Estado
-    @if (mode() === 'pending') {
-      <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
-        <option value="all">Todos (no entregados)</option>
-        <option value="overdue">Atrasados</option>
-        <option value="soon">Próximos 7 días</option>
-      </select>
-    } @else {
-      <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
-        <option value="all">Todos (entregados)</option>
-        <option value="ungraded">Sin calificar</option>
-        <option value="graded">Calificados</option>
-      </select>
-    }
-  </label>
-
-  <label>
-    Materia
-    <select
-      [ngModel]="courseId()"
-      (ngModelChange)="courseId.set($event); onCourseChange()"
-    >
-      <option [ngValue]="0">Todas</option>
-      @for (c of courseOptions(); track c.id) {
-        <option [ngValue]="c.id">{{ c.name }}</option>
-      }
-    </select>
-  </label>
-
-  <label>
-    Criterio de evaluación
-    <select [ngModel]="categoryId()" (ngModelChange)="categoryId.set($event)">
-      <option [ngValue]="0">Todos</option>
-      @for (cat of categoryOptions(); track cat.id) {
-        <option [ngValue]="cat.id">{{ cat.name }}</option>
-      }
-    </select>
-  </label>
-
-  <label>
-    Ordenar
-    <select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
-      <option value="due-asc">Fecha de entrega ↑</option>
-      <option value="due-desc">Fecha de entrega ↓</option>
-      <option value="grade-desc">Calificación ↓</option>
-      <option value="name">Nombre A–Z</option>
-    </select>
-  </label>
-
-  <button class="btn" type="button" (click)="clearFilters()">Limpiar</button>
-</section>
 
 <section class="list">
   @for (d of view(); track d.id) {

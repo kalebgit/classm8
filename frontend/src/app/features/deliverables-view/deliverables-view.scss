@@ -1,15 +1,16 @@
 :host.dview-host {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  /* dejamos suficiente alto para el resto del shell (barra de cuenta, hint,
-     accesos de classroom, navbar) y forzamos scroll interno de la lista en
-     vez de que crezca la página completa */
-  flex: 1;
+  display: block;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg);
 }
 
 .head {
-  flex: none;
+  /* ya viene con fondo ámbar sólido (ver styles.scss global) */
 }
 
 .filters {
@@ -19,7 +20,7 @@
   padding: 10px;
   border-bottom: 1px dashed var(--line);
   align-items: end;
-  flex: none;
+  background: var(--bg);
 }
 .filters label {
   display: flex;
@@ -40,11 +41,7 @@
 .empty { padding: 12px; color: var(--dim); }
 
 .list {
-  flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
 }
 
 app-deliverable-card {
